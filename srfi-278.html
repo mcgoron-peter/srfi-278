@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<!--
+SPDX-FileCopyrightText: 2026 Peter McGoron
+SPDX-License-Identifier: MIT
+-->
+  <head>
+    <meta charset="utf-8">
+    <title>SRFI 278: Supplemental Numerics</title>
+    <style>
+            @media (prefers-color-scheme: light) {
+              :root {
+                --background-color: white;
+                --link-color: blue;
+                --text-color: black;
+                --visited-link-color: purple;
+              }
+              code {
+                  background-color: #f0f0f0;
+              }
+            }
+
+            @media (prefers-color-scheme: dark) {
+              :root {
+                --background-color: #161616;
+                --link-color: SkyBlue;
+                --text-color: #e0e0e0;
+                --visited-link-color: Orchid;
+              }
+              code {
+                background-color: #2b2b2b;
+              }
+            }
+
+    .never-break-inside > a {
+      white-space: nowrap;
+    }
+    .never-break-inside > code {
+      white-space: nowrap;
+    }
+
+            .normal-font {
+              font-family: sans-serif;
+            }
+            .no-bg {
+              background-color: var(--background-color);
+            }
+
+            .feature {
+              overflow: hidden;
+            }
+
+            .category {
+              float: right;
+              font-family: monospace;
+              font-size: 12pt;
+            }
+
+            .boxed {
+              border: 1px solid;
+              padding-top: 6pt;
+              padding-bottom: 6pt;
+              padding-left: 6pt;
+              padding-right: 12pt;
+              overflow: auto;
+              margin-bottom: 6pt;
+            }
+
+            .boxed-tag {
+              font-style: italic;
+            }
+
+            .example-code {
+              background-color: var(--background-color);
+              display: inline-block;
+              min-width: 26ch;
+            }
+
+            a {
+              color: var(--link-color);
+            }
+            a:visited {
+              color: var(--visited-link-color);
+            }
+            body {
+              background-color: var(--background-color);
+              color: var(--text-color);
+            }
+            .report-name {
+              font-style: italic;
+            }
+
+            .centered {
+             text-align: center;
+            }
+            .evals-side {
+            }
+
+            .evals-text {
+              font-family: serif;
+              font-style: italic;
+            }
+    </style>
+    <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png">
+    <link rel="stylesheet" href="https://srfi.schemers.org/srfi.css" type="text/css">
+    <meta name="viewport" content="width=device-width, initial-scale=1"></head>
+  <body>
+    <h1><a href="https://srfi.schemers.org/"
+        ><img class="srfi-logo"
+              src="https://srfi.schemers.org/srfi-logo.svg"
+              alt="SRFI surfboard logo"
+        /></a>278: Supplemental Numerics</h1>
+
+<p>by Peter McGoron</p>
+
+<h2 id="status">Status</h2>
+
+<p style="color: red;">For editor's use only.  Please do not edit this section.</p>
+
+<p>??? the draft/final/withdrawn status of the SRFI, information on how
+to subscribe to its mailing list, and important dates in its history.
+The editor will add this section.</p>
+
+<h2 id="abstract">Abstract</h2>
+
+<p>
+  This SRFI defines miscellaneous procedures on numbers that were either
+  missing from the <span class="report-name">R<sup>7</sup>RS</span> or are
+  common extensions.
+</p>
+
+<h2 id="issues">Issues</h2>
+
+<ol>
+  <li>If you have experience with writing numeric procedures like these,
+      I would like your feedback. I have never written code like this
+      before.
+  </li>
+  <li>I am unsure if the requirements on the inverse hyperbolic functions
+      are sufficient to capture the behavior shown in the examples.
+  </li>
+  <li>Are there better ways to test the procedures? Like known pathological
+      inputs?
+  </li>
+</ol>
+
+<h2 id="rationale">Rationale</h2>
+
+<p>
+  This SRFI adds a few procedures that can be categorized into the following:
+</p>
+
+<ul>
+  <li>Standard procedures with extended domains (<code>exact-integer?</code>).</li>
+  <li>Procedures that mimic <span class="report-name">R<sup>6</sup>RS</span>
+      procedures (<code>strictly-real?</code>).
+  </li>
+  <li>Procedures that are common extensions (<code>conjugate</code>, hyperbolic functions).</li>
+  <li>Procedures that are related to IEEE 754-2019.</li>
+</ul>
+
+<p>
+  The extended domain procedures are more useful, because they can be
+  used without invoking “it is an error” behavior. For example, in this
+  SRFI, <code>(exact-integer? '())</code> and <code>(nan? '())</code>
+  both return <code>#f</code>. (Some proposed extensions to standard
+  procedures, such as
+  <a href="https://codeberg.org/scheme/r7rs/issues/193"
+  ><code>gcd</code> on rational arguments</a>, should be a part of a
+  different SRFI, such as
+  <a href="https://srfi.schemers.org/srfi-141/">SRFI 141</a>
+  extended to non-integers.)
+</p>
+
+<p>
+  The <span class="report-name">R<sup>6</sup>RS</span> procedures are
+  useful when determining if a number is exactly on the real number line,
+  as opposed to being approximately on the real number line. Procedures
+  like <span class="report-name">R<sup>6</sup>RS</span>’s
+  <code>div-and-mod</code> are <em>not</em> supplied. They are similarly
+  relegated to an extended SRFI 141.
+
+
+</p>
+
+<p>
+  The common extensions are the <code>conjugate</code> procedure and the
+  (inverse) hyperbolic functions. The (inverse) hyperbolic functions are
+  commonly provided on Schemes that provide complex arithmetic (for example,
+  Gambit, Chez, Racket, Gauche, and Guile), because those implementation
+  are required to implement complex (inverse) trigonometric functions,
+  which are closely connected to complex (inverse) hyperbolic functions.
+</p>
+
+<p>
+  The procedure <code>round-away</code> has been added to correspond to
+  the roundTiesToAway rounding mode in IEEE 754-2019.
+</p>
+
+<h2 id="specification">Specification</h2>
+
+<p>
+  Requirement level verbs are in strong text.
+</p>
+
+<p>
+  The names of arguments have the same requirements as the
+  <span class="report-name">R<sup>7</sup>RS</span>. It is an error to
+  call a procedure with a list of arguments that do not match the
+  description given here.
+</p>
+
+<p>
+  When an example evaluates to an inexact number, that number is approximate.
+  The number that an implementation evaluates to should be close in both
+  parts of a complex number to that value. An exception is when one part
+  of a complex value is an infinity or a zero. An implementation
+  <strong>should</strong> evaluate to a number that has the appropriately
+  signed infinity or zero in that part (in the sense of <code>eqv?</code>).
+</p>
+
+<h3 id="library">Library</h3>
+<p>The following are exported from the library defined by this SRFI.</p>
+
+<p class="never-break-inside">
+  <a href="#conjugate"><code>conjugate</code></a>
+  <a href="#round-away"><code>round-away</code></a>
+  <a href="#strictly-realp"><code>strictly-real?</code></a>
+  <a href="#strictly-rationalp"><code>strictly-rational?</code></a>
+  <a href="#strictly-integerp"><code>strictly-integer?</code></a>
+  <a href="#exact-integerp"><code>exact-integer?</code></a>
+  <a href="#nanp"><code>nan?</code></a>
+  <a href="#sinh"><code>sinh</code></a>
+  <a href="#cosh"><code>cosh</code></a>
+  <a href="#tanh"><code>tanh</code></a>
+  <a href="#asinh"><code>asinh</code></a>
+  <a href="#acosh"><code>acosh</code></a>
+  <a href="#atanh"><code>atanh</code></a>
+</p>
+
+<div class="feature" id="conjugate">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#conjugate">conjugate</a> <var>z</var>)</code>
+</div>
+
+<p>Returns the complex conjugate of the procedure.</p>
+<p>If the implementation distinguishes the sign of inexact zero in the
+   imaginary part of a complex number, then it <strong>must</strong>
+   flip the sign of the inexact zero.
+</p>
+<p>This procedure returns an exact value given an exact argument.</p>
+
+<div class="boxed">
+<p>
+  <span class="boxed-tag">Note</span>:  If non-real complex
+   numbers are not provided, this procedure is just the identity function.
+</p>
+</div>
+
+<pre
+><code class="example-code">(conjugate 1.0)</code> ⇒ 1.0
+<code class="example-code">(conjugate 1+2i)</code> ⇒ 1-2i
+<code class="example-code">(conjugate 1.0+0.0i)</code> ⇒ 1.0-0.0i
+<code class="example-code">(conjugate 1.0-0.0i)</code> ⇒ 1.0+0.0i</pre>
+
+<div class="feature" id="round-away">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#round-away">round-away</a>
+                          <var>x</var>)</code>
+</div>
+<p>
+  Round <var>x</var> to an integer, with ties broken by returning the
+  number greater in absolute value. Equivalent to the IEEE 754-2019
+  <a href="#ieee">[2]</a> rounding mode roundTiesToAway.
+</p>
+<p>This procedure returns an exact value given an exact argument.</p>
+
+<pre
+><code class="example-code">(round-away 2.5)</code> ⇒ 3.0
+<code class="example-code">(round-away 5/2)</code> ⇒ 3
+<code class="example-code">(round-away 2.4)</code> ⇒ 2.0
+<code class="example-code">(round-away -2.5)</code> ⇒ -3.0
+<code class="example-code">(round-away 3.6)</code> ⇒ 4.0
+<code class="example-code">(round-away 3.5)</code> ⇒ 4.0
+<code class="example-code">(round-away 3.4)</code> ⇒ 3.0</pre>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#strictly-realp" id="strictly-realp"
+                        >strictly-real?</a> <var>obj</var>)</code><br>
+<code class="signature">(<a href="#strictly-rationalp" id="strictly-rationalp"
+                        >strictly-rational?</a> <var>obj</var>)</code><br>
+<code class="signature">(<a href="#strictly-integerp" id="strictly-integerp"
+                        >strictly-integer?</a> <var>obj</var>)</code>
+</div>
+
+<p>
+  Returns <code>#t</code> if the <var>obj</var> is of the corresponding
+  type, <code>(zero? (imag-part <var>obj</var>))</code> is
+  <code>#t</code>, <em>and</em><code>(exact? (imag-part <var>obj</var>))</code>.
+</p>
+
+<div class="boxed">
+<p>
+  <span class="boxed-tag">Rationale</span>: These procedures have the
+  semantics of <code>real?</code>, <code>rational?</code>, and
+  <code>integer?</code> in the <span class="report-name">R<sup>6</sup>RS</span>.
+  It is sometimes useful to have a number represented internally as a
+  complex number even when its imaginary part is inexact zero: this
+  occurs when one wants to use the sign of the inexact zero for
+  computations. It is intended that a number that is
+  <code>strictly-real?</code>, etc. is not represented internally as
+  a compound number (compnum), and that all complex numbers with an
+  exact zero imaginary part are normalized and represented
+   as flonums, bignums, fixnums, ratnums, etc.
+</p>
+<p>
+  Another reason to distinguish between <code>real?</code> and
+  <code>strictly-real?</code> is the interpretation of what it means for
+  the imaginary part of a number to be inexact zero. When a number is
+  inexact zero, it is only <em>approximately</em> that number. As such,
+  if a number has an inexact zero imaginary part, then we don’t know if
+  it is actually on the real axis, or if the actual result of the
+  computation was actually slightly above or below the real axis.
+  On the other hand, if the imaginary part is exactly zero, then the
+  the number <em>has</em> to be on the real axis.
+</p>
+</div>
+
+<pre
+><code class="example-code">(strictly-real? 1.0)</code> ⇒ #t
+<code class="example-code">(strictly-real? 1)</code> ⇒ #t
+<code class="example-code">(strictly-real? 1+0i)</code> ⇒ #t
+<code class="example-code">(strictly-real? 1.0+0.0i)</code> ⇒ #f
+<code class="example-code">(strictly-real? 1.0-0.0i)</code> ⇒ #f</pre>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#exact-integerp" id="exact-integerp"
+                        >exact-integer?</a> <var>obj</var>)</code><br>
+<code class="signature">(<a href="#nanp" id="nanp"
+                        >nan?</a> <var>obj</var>)</code><br>
+</div>
+
+<p>
+  These procedures are the same as their counterparts in the Reports,
+  except that they return <code>#f</code> when passed an object
+  that is not <code>number?</code>.
+</p>
+
+<div class="boxed">
+<p>
+  <span class="boxed-tag">Rationale</span>: Implementations are
+  encouraged to replace the versions of these procedures in
+  <code>(scheme base)</code> with the one defined in this SRFI.
+  The ones defined in this SRFI are backwards-compatible with the
+  versions described in the
+  <span class="report-name">R<sup>7</sup>RS</span>.
+</p>
+</div>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#sinh" id="sinh"
+                        >sinh</a> <var>z</var>)</code><br>
+<code class="signature">(<a href="#cosh" id="cosh"
+                        >cosh</a> <var>z</var>)</code><br>
+<code class="signature">(<a href="#tanh" id="tanh"
+                        >tanh</a> <var>z</var>)</code><br>
+</div>
+
+<p>
+  Calculates the value of the hyperbolic function for <var>z</var>.
+</p>
+
+<pre
+><code class="example-code">(sinh 0)</code> ⇒ 0.0
+<code class="example-code">(sinh +inf.0)</code> ⇒ +inf.0
+<code class="example-code">(sinh -inf.0)</code> ⇒ -inf.0
+<code class="example-code">(cosh 0)</code> ⇒ 1.0
+<code class="example-code">(cosh +inf.0)</code> ⇒ +inf.0
+<code class="example-code">(cosh -inf.0)</code> ⇒ +inf.0
+<code class="example-code">(sinh +1.0i)</code> ⇒ +.8414709848078965i</pre>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#asinh" id="asinh"
+                        >asinh</a> <var>z</var>)</code><br>
+<code class="signature">(<a href="#acosh" id="acosh"
+                        >acosh</a> <var>z</var>)</code><br>
+<code class="signature">(<a href="#atanh" id="atanh"
+                        >atanh</a> <var>z</var>)</code><br>
+</div>
+
+<p>Calculates the principal value of the inverse hyperbolic function
+   at <var>z</var>.</p>
+
+<p>It is an error to call these values on exact numbers on a location
+   where the procedure is undefined mathematically. The implementation
+   <strong>should</strong> raise an exception in such a scenario.
+</p>
+
+<p>
+  In general, inverse hyperbolic functions are multiply valued.
+  The following principal expressions are derived from the table in the
+  Reports and from <a href="#kahan1987">[1]</a>.
+  (For those that cannot render the math, <a href="math.png">this image</a>
+   shows the equations.)
+</p>
+
+<!-- The MathML is a big blob. It was extracted from the current version
+     of the Report in DocBook. -->
+<p>
+The value of <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>log</mi><mo>⁡</mo><mi>z</mi></mrow></math> for non-real <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>z</mi></math> is defined in terms of <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>log</mi></math> as </p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>log</mi><mo>⁡</mo><mi>z</mi><mo>=</mo><mi>log</mi><mo>⁡</mo><mrow><mo>|</mo><mi>z</mi><mo>|</mo></mrow><mo>+</mo><mrow><mo>(</mo><mi>angle</mi><mo>⁡</mo><mi>z</mi><mo>)</mo></mrow><mo>⁢</mo><mi>i</mi></mrow></math><p>
+where <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>angle</mi><mo>⁡</mo><mi>z</mi></mrow></math> is the angle of <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>z</mi><mo>=</mo><mi>a</mi><mo>⁢</mo><msup><mi>e</mi><mrow><mi>i</mi><mo>⁢</mo><mi>θ</mi></mrow></msup></mrow></math> specified as </p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>angle</mi><mo>⁡</mo><mi>z</mi><mo>=</mo><mi>b</mi><mo>+</mo><mn>2</mn><mo>⁢</mo><mi>i</mi><mo>⁢</mo><mi>n</mi></mrow></math><p>
+with <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>n</mi></math> chosen such that <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>−</mo><mo>⁢</mo><mi>π</mi><mo>≤</mo><mo>angle</mo><mo>⁡</mo><mo>z</mo><mo>≤</mo><mi>π</mi></mrow></math>.</p>
+<p>
+With log defined this way, the
+values of the trancendental functions relevant to this SRFI
+go according to the following formulæ:</p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mtable><mtr><mtd><msup><mi>sin</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi><mo>=</mo><mo>−</mo><mi>i</mi><mo>⁢</mo><mi>log</mi><mo>⁡</mo><mrow><mo>(</mo><mi>i</mi><mo>⁢</mo><mi>z</mi><mo>+</mo><msqrt><mn>1</mn><mo>-</mo><msup><mi>z</mi><mn>2</mn></msup></msqrt><mo>)</mo></mrow></mtd></mtr><mtr><mtd><msup><mi>cos</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi><mo>=</mo><mfrac><mi>π</mi><mn>2</mn></mfrac><mo>−</mo><msup><mi>sin</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi></mtd></mtr><mtr><mtd><msup><mi>tan</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi><mo>=</mo><mfrac><mrow><mi>log</mi><mo>⁡</mo><mrow><mo>(</mo><mn>1</mn><mo>+</mo><mi>i</mi><mo>⁢</mo><mi>z</mi><mo>)</mo></mrow><mo>−</mo><mi>log</mi><mrow><mo>(</mo><mn>1</mn><mo>−</mo><mi>i</mi><mo>⁢</mo><mi>z</mi><mo>)</mo></mrow></mrow><mrow><mn>2</mn><mo>⁢</mo><mi>i</mi></mrow></mfrac></mtd></mtr><mtr><mtd><msup><mi>tanh</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi><mo>=</mo><mfrac><mrow><mi>log</mi><mrow><mo>(</mo><mn>1</mn><mo>+</mo><mi>z</mi><mo>)</mo></mrow><mo>−</mo><mi>log</mi><mrow><mo>(</mo><mn>1</mn><mo>-</mo><mi>z</mi><mo>)</mo></mrow></mrow><mn>2</mn></mfrac></mtd></mtr><mtr><mtd><msup><mi>sinh</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi><mo>=</mo><mi>log</mi><mrow><mo>(</mo><mi>z</mi><mo>+</mo><msqrt><mn>1</mn><mo>+</mo><msup><mi>z</mi><mn>2</mn></msup></msqrt><mo>)</mo></mrow></mtd></mtr><mtr><mtd><msup><mi>cosh</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi><mo>=</mo><mrow><mn>2</mn><mo>⁢</mo><mi>log</mi><mrow><mo>(</mo><msqrt><mfrac><mrow><mn>1</mn><mo>+</mo><mi>z</mi></mrow><mn>2</mn></mfrac></msqrt><mo>+</mo><msqrt><mfrac><mrow><mn>z</mn><mo>-</mo><mi>1</mi></mrow><mn>2</mn></mfrac></msqrt><mo>)</mo></mrow></mrow></mtd></mtr></mtable></math><p>
+
+<p>(The inverse trigonometric functions are included for comparison.)</p>
+
+<p>
+  When an implementation distinguishes the sign of inexact zero in some
+  number, and if that number lies on a branch cut, then the implementation
+  <strong>must</strong> return a value reasonably close to the appropriate
+  one-sided limit of the function approaching the branch cut.
+</p>
+
+<pre
+><code class="example-code">(atanh 1.0+0.0i)</code> ⇒ -inf.0+.7853981633974483i
+<code class="example-code">(atanh 1.0-0.0i)</code> ⇒ -inf.0-.7853981633974483i
+<code class="example-code">(atanh -1.0+0.0i)</code> ⇒ +inf.0+.7853981633974483i
+<code class="example-code">(atanh -1.0-0.0i)</code> ⇒ +inf.0-.7853981633974483i
+<code class="example-code">(atanh 0.0+1.0i)</code> ⇒ 0.0+0.7853981633974483i
+<code class="example-code">(atanh 1)</code> ⇒ <em>error</em>
+<code class="example-code">(atanh 0.0-1.0i)</code> ⇒ 0.0-.7853981633974483i
+<code class="example-code">(acosh 0.0+0.0i)</code> ⇒ 0.+1.5707963267948966i
+<code class="example-code">(acosh 0.0-0.0i)</code> ⇒ 0.-1.5707963267948966i
+<code class="example-code">(acosh 1.0+0.0i)</code> ⇒ 0.+3.141592653589793i
+<code class="example-code">(acosh 1.0-0.0i)</code> ⇒ 0.-3.141592653589793i
+<code class="example-code">(asinh 0.0+2.0i)</code> ⇒ 1.3169578969248166+1.5707963267948966i
+<code class="example-code">(asinh -0.0+2.0i)</code> ⇒ -1.3169578969248166+1.5707963267948966i</pre>
+
+<h2 id="implementation">Implementation</h2>
+
+<p>
+  A sample implementation is available in the SRFI
+  repository. It depends on complex numbers, inexact numbers, <a
+  href="https://srfi.schemers.org/srfi-144/">SRFI 144</a>, inexact
+  infinities, and signed zeroes. In addition, complex numbers must be
+  able to store signed zeros in any part. (Some implementations do not
+  allow this, like Gauche.) The sample implementation has been tested
+  on Chibi Scheme. A test suite that depends on those features is also
+  available.
+</p>
+
+<p>
+  An implementation without complex numbers support can copy the
+  implementations of the (inverse) hyperbolic functions from SRFI 144
+  instead of using the implementation in this repository.
+  The other parts of the implementation are portable
+  <span class="report-name">R<sup>7</sup>RS</span>.
+</p>
+
+<h2 id="acknowledgements">Acknowledgements</h2>
+
+<p>I thank Bradley Lucier and the Gambit project for writing high-quality
+   implementations of the (inverse) hyperbolic functions. I have used
+   Gambit to check that my code outputs the correct values.
+</p>
+
+<p>I thank William Kahan for doing the hard part for me (and many other
+   people).</p>
+
+<h2 id="references">References</h2>
+
+<p id="kahan1987"><a href="#kahan1987">[1]</a>: 
+Kahan, W. Branch cuts for complex elementary functions;
+or, Much ado about nothing's sign bit. In Iserles, A., and Powell, M. (eds.),
+<i>The state of the art in numerical analysis</i>. Clarendon Press (1987) pp 165-211.
+</p>
+<p id="ieee"><a href="#ieee">[2]</a>: 
+IEEE Computer Society. IEEE Standard for Floating-Point
+Arithmetic (IEEE STD 754-2019).
+<a href="https://dx.doi.org/10.1109/IEEESTD.2019.8766229"
+>doi:10.1109/IEEESTD.2019.8766229</a>. (2019).
+ISBN 978-1-5044-5924-2.</p>
+
+<h2 id="copyright">Copyright</h2>
+<p>&copy; 2026 Peter McGoron.</p>
+
+<p>
+  Permission is hereby granted, free of charge, to any person
+  obtaining a copy of this software and associated documentation files
+  (the "Software"), to deal in the Software without restriction,
+  including without limitation the rights to use, copy, modify, merge,
+  publish, distribute, sublicense, and/or sell copies of the Software,
+  and to permit persons to whom the Software is furnished to do so,
+  subject to the following conditions:</p>
+
+<p>
+  The above copyright notice and this permission notice (including the
+  next paragraph) shall be included in all copies or substantial
+  portions of the Software.</p>
+
+<p>
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
+  BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+  ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.</p>
+
+  <hr>
+  <address>Editor: <a href="mailto:srfi-editors+at+srfi+dot+schemers+dot+org">Arthur A. Gleckler</a></address></body></html>
