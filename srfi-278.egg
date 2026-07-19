@@ -1,0 +1,12 @@
+((author "Peter McGoron")
+ (version "0.1.0")
+ (synopsis "Supplemental Numerics (includes complex hyperbolic functions)")
+ (category math)
+ (license "MIT")
+ (test-dependencies test srfi-144)
+ (components (extension srfi-278
+               (source "lib/srfi/278.sld")
+               (source-dependencies "lib/srfi/278.scm")
+               (csc-options "-O3")
+               )
+             ))
