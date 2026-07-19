@@ -4,6 +4,7 @@
  (category math)
  (license "MIT")
  (test-dependencies test srfi-144)
+ (dependencies srfi-144)
  (components (extension srfi-278
                (source "lib/srfi/278.sld")
                (source-dependencies "lib/srfi/278.scm")

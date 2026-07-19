@@ -4,3 +4,4 @@
 *.install.sh
 *.import.scm
 *.build.sh
+chicken/
