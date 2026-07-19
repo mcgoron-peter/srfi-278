@@ -27,9 +27,12 @@
                      (:least fl-least)
                      (:epsilon fl-epsilon)
                      (:pi/2 fl-pi/2)
+                     (:pi/4 fl-pi/4)
                      (:make-flonum make-flonum)
                      (:exponent flexponent)
                      (:asinh flasinh)
+                     (:sinh flsinh)
+                     (:cosh flcosh)
                      (:atanh flatanh)
                      (:log1+ fllog1+))))
     ((library (srfi 144))
@@ -39,9 +42,12 @@
                    fl-least
                    fl-epsilon
                    fl-pi/2
+                   fl-pi/4
                    make-flonum
                    flexponent
                    flasinh
+                   flsinh
+                   flcosh
                    flatanh
                    fllog1+)))
     ;; If you don't have SRFI 144, you have to define the following
@@ -51,6 +57,8 @@
     ;; fl-pi/2
     ;; fllog1+
     ;; flasinh
+    ;; flsinh
+    ;; flcosh
     ;; flatanh
     ;;
     ;; If your inexact real type is a IEEE 754 format number, then you

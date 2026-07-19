@@ -1,26 +1,47 @@
 ;;; SPDX-FileCopyrightText: 2026 Peter McGoron
 ;;; SPDX-License-Identifier: MIT
 
+(define signed-imaginary-zero?
+  ;; True only when the sign of *imaginary* zero is distinguished.
+  ;; Gauche, CHICKEN, for example, don't, even when the distinguish
+  ;; the sign of real zero.
+  (not (eqv? (make-rectangular 0.0 0.0)
+             (make-rectangular 0.0 -0.0))))
+
+(define needs-strict-definition?
+  (cond
+    ((not (real? 0.0+0.0i)) #f)
+    (signed-imaginary-zero? #t)
+    ((exact? (imag-part 0.0)) #t)
+    (else #f)))
+
 (define (nan? obj)
   (and (number? obj) (r7rs:nan? obj)))
 
 (define (exact-integer? obj)
   (and (integer? obj) (exact? obj)))
 
-(define (exact-zero? z)
-  (and (zero? z) (exact? z)))
+(define strictly-real?
+  (if needs-strict-definition?
+      (lambda (obj)
+        (and (complex? obj)
+             (zero? (imag-part obj))
+             (exact? (imag-part obj))))
+      real?))
 
-(define (strictly-real? obj)
-  (and (complex? obj)
-       (exact-zero? (imag-part obj))))
+(define strictly-rational?
+  (if needs-strict-definition?
+      (lambda (obj)
+        (and (rational? obj)
+             (exact? (imag-part obj))))
+      rational?))
 
-(define (strictly-rational? obj)
-  (and (rational? obj)
-       (exact-zero? (imag-part obj))))
-
-(define (strictly-integer? obj)
-  (and (integer? obj)
-       (exact-zero? (imag-part obj))))
+(define strictly-integer?
+  (if needs-strict-definition?
+      (lambda (obj)
+        (and (integer? obj)
+             (exact? (imag-part obj))))
+      integer?))
 
 (define (conjugate z)
   ;; Return exact value given possibly exact arguments.
@@ -86,29 +107,29 @@
                    ((rho) (make-flonum* (sqrt rho) k))
                    ((zeta) rho)
                    ((eta) y)
-                   ((eta) (if (and (not (zero? rho)) (not (infinite? y)))
+                   ((eta) (if (and (not (zero? rho)) (not (infinite? eta)))
                               (/ eta rho 2.0)
                               eta)))
-       (if (and (not (zero? rho)) (not (infinite? y))
-                (negative? x))
+       (if (and (not (zero? rho)) (negative? x))
            (make-rectangular (abs eta) (* rho (sign y)))
            (make-rectangular zeta eta)))))
   (else (define csqrt sqrt)))
 
-;;; TODO: cacos, casin?
-
 (define (sinh z)
-  ;; The exponential formula does not keep the sign of zero.
-  (let ((value (* -i (sin (* +i z)))))
-    (if (strictly-real? z)
-        (real-part value)
-        value)))
+  (if (strictly-real? z)
+      (flsinh (flonum z))
+      (make-rectangular (* (flsinh (real-part z))
+                           (cos (imag-part z)))
+                        (* (flcosh (real-part z))
+                           (sin (imag-part z))))))
 
 (define (cosh z)
-  (let ((value (* (cos (* +i z)))))
-    (if (strictly-real? z)
-        (real-part value)
-        value)))
+  (if (strictly-real? z)
+      (flcosh (flonum z))
+      (let ((x (flonum (real-part z)))
+            (y (imag-part z)))
+        (make-rectangular (* (flcosh x) (cos y))
+                          (* (flsinh x) (sin y))))))
 
 (cond-expand
   ((or (library (srfi 144))
@@ -117,14 +138,57 @@
      (let ((x (real-part z))
            (s:1-z (csqrt (- 1 z)))
            (s:1+z (csqrt (+ 1 z))))
-       (make-rectangular (atan x
-                               (real-part (* s:1-z s:1+z)))
+       (make-rectangular (atan x (real-part (* s:1-z s:1+z)))
                          (flasinh (imag-part (* (conjugate s:1-z)
                                                 s:1+z)))))))
   (else (define casin asin)))
 
-(define (asinh z)
-  (* -i (casin (* +i z))))
+;;; Kahan's algorithm can cope with all unsigned zeros, or all signed
+;;; zeroes, but some Scheme implementations have signed real zeroes
+;;; but unsigned imaginary zeroes. This implementation of asinh causes
+;;; the *clockwise* direction to be chosen for any signed zero input,
+;;; because of these multiplications by +i storing the signed zero in
+;;; the imaginary part, removing the sign.
+;;;
+;;; Not only is that the opposite convention of the unsigned zero case,
+;;; it also erases sign information from the real part! This hack fixes
+;;; this.
+
+(cond-expand
+  (chicken-6
+   (define (*-i z)
+     (make-rectangular (imag-part z)
+                       (- (real-part z))))
+   (define (*+i z)
+     (make-rectangular (- (imag-part z))
+                       (real-part z))))
+  (else (define (*-i z) (* -i z))
+        (define (*+i z) (* +i z))))
+
+(define asinh
+  (if signed-imaginary-zero?
+      (lambda (z)
+        (if (strictly-real? z)
+            (flasinh (flonum z))
+            (*-i (casin (*+i z)))))
+      (lambda (z)
+        (let ((w (* -i (casin (* +i z))))
+              (x (real-part z))
+              (y (imag-part z)))
+          (cond
+            ((positive? y)                        ; First or second
+             (make-rectangular (* (sign x)        ; quadrant. The CCW rule
+                                  (real-part w))  ; was applied, meaning
+                               (imag-part w)))    ; that we should flip
+                                                  ; the sign.
+
+            ((zero? y) w)
+            (else                                 ; Third or fourth
+             (make-rectangular (* (sign x)        ; quadrant. We might
+                                  -1              ; need to flip the sign,
+                                  (real-part w))  ; but in the opposite
+                               (imag-part w)))    ; scenarios.
+          )))))
 
 (define (%acosh z)
   (let* ((x (real-part z))
@@ -149,12 +213,22 @@
 
 (define (sign x)
   (cond
+    ((and (exact? x) (zero? x)) 1)
     ((and (zero? x) (not (eqv? x 0.0))) -1)
     ((negative? x) -1)
     (else 1)))
 
+(cond-expand
+  ;; Work around a bug(?) in CHICKEN 6 where
+  ;;   (* 1 +inf.0+1.0i) => +inf.0+nan.0i
+  (chicken-6
+   (define (c* x z)
+     (make-rectangular (* x (real-part z))
+                       (* x (imag-part z)))))
+  (else (define c* *)))
+
 (define (%atanh z)
-  (let* ((z (* (sign (real-part z)) (conjugate z)))
+  (let* ((z (c* (sign (real-part z)) (conjugate z)))
          (x (real-part z))
          (y (imag-part z)))
     (cond
@@ -163,7 +237,7 @@
                          (* fl-pi/2 (sign y))))
       ((and (= x 1.0) (zero? y))
        (make-rectangular -inf.0
-                         (* (sign y) .7853981633974483)))
+                         (* (sign y) fl-pi/4)))
       ((= x 1.0)
        (let ((ay+rho (+ (abs y) rho)))
          (make-rectangular (log (/ (sqrt (sqrt (+ 4.0 (square y))))
@@ -180,7 +254,9 @@
                               4.0)
                            (/ (angle (+ (* (- 1.0 x) (+ 1.0 x))
                                         (- y+rho)
-                                        (* +2.0i y)))
+                                        (make-rectangular
+                                         0.0
+                                         (* 2.0 y))))
                               2.0)))))))
 
 (define (atanh z)
@@ -188,11 +264,11 @@
     ((and (strictly-real? z) (eqv? (abs z) 1))
      (error 'atanh "atanh has a singularity at 1 and -1"))
     ((and (strictly-real? z) (< -1.0 z 1.0))
-     (flatanh (inexact z)))
-    (else (* (sign (real-part z)) (conjugate (%atanh z))))))
+     (flatanh (flonum z)))
+    (else (c* (sign (real-part z)) (conjugate (%atanh z))))))
 
 (define tanh-overflow-treshold
-  (real-part (/ (asinh fl-greatest) 4)))
+  (real-part (/ (flasinh fl-greatest) 4)))
 
 (define (tanh z)
   (let ((x (real-part z))

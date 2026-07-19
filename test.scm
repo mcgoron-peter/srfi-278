@@ -2,10 +2,56 @@
 ;;; SPDX-License-Identifier: MIT
 
 (import (except (scheme base) exact-integer?)
+        (scheme write)
+        (scheme process-context)
         (scheme complex)
         (rename (scheme inexact) (nan? r7rs:nan?))
-        (srfi 64)
         (srfi 278))
+
+(cond-expand
+  ((library (srfi 64))
+   (import (srfi 64)))
+  (chicken-6 
+   (import (rename (test)
+                   (test %test))))
+  (else (error "need a test suite")))
+
+(cond-expand
+  ((library (srfi 64))
+   (define (test-exit)
+     (exit (+ (test-runner-pass-count the-test-runner)
+              (test-runner-xpass-count the-test-runner)))))
+  (chicken-6
+   (current-test-epsilon 0.01)
+   (define-syntax test-approximate
+     (syntax-rules ()
+       ((_ (something . rest) actual error)
+        (let ((value (something . rest)))
+          (%test value actual)))
+       ((_ expected actual error)
+        (%test expected actual))
+       ((_ name (something . rest) actual error)
+        (let ((value (something . rest)))
+          (%test name value actual)))
+       ((_ name expected actual error)
+        (%test name expected actual))))
+   (define-syntax test-eqv
+     (syntax-rules ()
+       ((_ expected actual) (%test expected actual))
+       ((_ name expected actual) (%test name expected actual))))
+  ))
+
+(define signed-imaginary-zero?
+  ;; Some tests discriminate based on the sign of the imaginary
+  ;; zero. This is used to skip those tests.
+  ;;
+  ;; NOTE: This test suite assumes that real inexact zero still has a
+  ;; sign.
+  (not (eqv? (make-rectangular 0.0 0.0)
+             (make-rectangular 0.0 -0.0))))
+
+(define exact-complex-numbers?
+  (exact? 1+2i))
 
 (test-begin "SRFI 278")
 
@@ -45,7 +91,13 @@
   (test-eqv 1 (conjugate 1))
   (test-eqv -1 (conjugate -1))
   (test-eqv 1-2i (conjugate 1+2i))
-  (test-eqv -0.0 (imag-part (conjugate 1.0+0.0i)))
+  (cond-expand
+    ((library (srfi 64))
+     (unless signed-imaginary-zero?
+       (test-skip 1)))
+    (else
+     (when signed-imaginary-zero?
+       (test-eqv -0.0 (imag-part (conjugate 1.0+0.0i))))))
   (test-eqv +i (conjugate -i)))
 
 (test-group "sinh"
@@ -82,6 +134,8 @@
 
 (define (test-approximate/special expect actual error)
   (cond
+    ((and (not exact-complex-numbers?) (zero? expect))
+     (test-assert (zero? actual)))
     ((eqv? expect +0.0)
      (test-assert (or (eqv? actual 0.0)
                       (eqv? actual 0))))
@@ -100,8 +154,12 @@
                             1e-6))
 
 (test-group "atanh"
+  ;; In Kahan’s version for unsigned zero, the returned value is the
+  ;; value that is approached counter-clockwise. 
   (test-group "(atanh 1.0+0.0i)"
-    (test-real-and-imag -inf.0+.7853981633974483i
+    (test-real-and-imag (if signed-imaginary-zero?
+                            -inf.0+.7853981633974483i
+                            -inf.0-.7853981633974483i)
                         (atanh 1.0+0.0i)))
   (test-group "(atanh 1.0-0.0i)"
     (test-real-and-imag -inf.0-.7853981633974483i
@@ -110,10 +168,14 @@
     (test-real-and-imag +inf.0+.7853981633974483i
                         (atanh -1.0+0.0i)))
   (test-group "(atanh -1.0-0.0i)"
-    (test-real-and-imag +inf.0-.7853981633974483i
+    (test-real-and-imag (if signed-imaginary-zero?
+                            +inf.0-.7853981633974483i
+                            +inf.0+.7853981633974483i)
                         (atanh -1.0-0.0i)))
   (test-group "(atanh 2.0+0.0i)"
-    (test-real-and-imag .5493061443340549+1.5707963267948966i
+    (test-real-and-imag (if signed-imaginary-zero?
+                            .5493061443340549+1.5707963267948966i
+                            .5493061443340549-1.5707963267948966i)
                         (atanh 2.0+0.0i)))
   (test-group "(atanh 2.0-0.0i)"
     (test-real-and-imag .5493061443340549-1.5707963267948966i
@@ -145,19 +207,25 @@
     (test-real-and-imag 0.0+0.0i
                         (acosh 1.0+0.0i)))
   (test-group "(acosh 1.0-0.0i)"
-    (test-real-and-imag 0.0-0.0i
+    (test-real-and-imag (if signed-imaginary-zero?
+                            0.0-0.0i
+                            0.0+0.0i)
                         (acosh 1.0-0.0i)))
   (test-group "(acosh 0.0+0.0i)"
     (test-real-and-imag 0.+1.5707963267948966i
                         (acosh 0.0+0.0i)))
   (test-group "(acosh 0.0-0.0i)"
-    (test-real-and-imag 0.-1.5707963267948966i
+    (test-real-and-imag (if signed-imaginary-zero?
+                            0.-1.5707963267948966i
+                            0.+1.5707963267948966i)
                         (acosh 0.0-0.0i)))
   (test-group "(acosh -1+0.0i)"
     (test-real-and-imag 0.0+3.141592653589793i
                         (acosh -1+0.0i)))
   (test-group "(acosh -1-0.0i)"
-    (test-real-and-imag 0.0-3.141592653589793i
+    (test-real-and-imag (if signed-imaginary-zero?
+                            0.0-3.141592653589793i
+                            0.0+3.141592653589793i)
                         (acosh -1-0.0i)))
   (test-group "(acosh 3+4i)"
     (test-real-and-imag 2.305509031243477+.9368124611557198i
@@ -171,14 +239,16 @@
     (test-real-and-imag 1.3169578969248166+1.5707963267948966i
                         (asinh 0.0+2.0i)))
   (test-group "(asinh -0.0+2.0i)"
-    (test-real-and-imag -1.3169578969248166+1.5707963267948966i
-                        (asinh -0.0+2.0i)))
+    (let ((input (make-rectangular -0.0 2.0))) ; CHICKEN 6 reader bug
+      (test-real-and-imag -1.3169578969248166+1.5707963267948966i
+                          (asinh input))))
   (test-group "(asinh 0.0-2.0i)"
     (test-real-and-imag 1.3169578969248166-1.5707963267948966i
                         (asinh 0.0-2.0i)))
   (test-group "(asinh -0.0-2.0i)"
-    (test-real-and-imag -1.3169578969248166-1.5707963267948966i
-                        (asinh -0.0-2.0i)))
+    (let ((input (make-rectangular -0.0 -2.0))) ; CHICKEN 6 reader bug
+      (test-real-and-imag -1.3169578969248166-1.5707963267948966i
+                          (asinh input))))
   (test-group "(asinh +i)"
     (test-real-and-imag +1.5707963267948966i
                         (asinh +i)))
@@ -190,4 +260,9 @@
     (test-real-and-imag (naive-asinh 1+2i)
                         (asinh 1+2i))))
 
+(cond-expand
+  ((library (srfi 64))
+   (define the-test-runner (test-runner-get)))
+  (else))
 (test-end "SRFI 278")
+(test-exit)
