@@ -136,7 +136,7 @@ The editor will add this section.</p>
       I would like your feedback. I have never written code like this
       before.
   </li>
-  <li>I am unsure if the requirements on the inverse hyperbolic functions
+  <li>I am unsure whether the requirements on the inverse hyperbolic functions
       are sufficient to capture the behavior shown in the examples.
   </li>
   <li>Are there better ways to test the procedures? Like known pathological
@@ -160,7 +160,7 @@ The editor will add this section.</p>
 </ul>
 
 <p>
-  The extended domain procedures are more useful, because they can be
+  The extended-domain procedures are more useful because they can be
   used without invoking “it is an error” behavior. For example, in this
   SRFI, <code>(exact-integer? '())</code> and <code>(nan? '())</code>
   both return <code>#f</code>. (Some proposed extensions to standard
@@ -174,7 +174,7 @@ The editor will add this section.</p>
 
 <p>
   The <span class="report-name">R<sup>6</sup>RS</span> procedures are
-  useful when determining if a number is exactly on the real number line,
+  useful when determining whether a number is exactly on the real number line,
   as opposed to being approximately on the real number line. Procedures
   like <span class="report-name">R<sup>6</sup>RS</span>’s
   <code>div-and-mod</code> are <em>not</em> supplied. They are similarly
@@ -187,7 +187,7 @@ The editor will add this section.</p>
   The common extensions are the <code>conjugate</code> procedure and the
   (inverse) hyperbolic functions. The (inverse) hyperbolic functions are
   commonly provided on Schemes that provide complex arithmetic (for example,
-  Gambit, Chez, Racket, Gauche, and Guile), because those implementation
+  Gambit, Chez, Racket, Gauche, and Guile) because those implementations
   are required to implement complex (inverse) trigonometric functions,
   which are closely connected to complex (inverse) hyperbolic functions.
 </p>
@@ -297,7 +297,7 @@ The editor will add this section.</p>
 <p>
   Returns <code>#t</code> if the <var>obj</var> is of the corresponding
   type, <code>(zero? (imag-part <var>obj</var>))</code> is
-  <code>#t</code>, <em>and</em><code>(exact? (imag-part <var>obj</var>))</code>.
+  <code>#t</code>, <em>and</em> <code>(exact? (imag-part <var>obj</var>))</code>.
 </p>
 
 <div class="boxed">
