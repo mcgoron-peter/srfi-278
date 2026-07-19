@@ -71,13 +71,14 @@
        (if (and (or (nan? rho) (infinite? rho))
                 (or (infinite? x) (infinite? y)))
            (values +inf.0 0)
-           (let ((underflowed? (or (< x^2 fl-least)
-                                   (< y^2 fl-least)))
+           (let ((underflowed? (or (< x^2 fl-least-normal)
+                                   (< y^2 fl-least-normal)))
                  (overflowed? (or (infinite? rho)
                                   (infinite? x^2)
                                   (infinite? y^2))))
              (if (or overflowed?
-                     (and underflowed? (< rho (/ fl-least fl-epsilon))))
+                     (and underflowed? (< rho (/ fl-least-normal
+                                                 fl-epsilon))))
                  (let ((k (flexponent (flonum (max (abs x) (abs y))))))
                    ;; NOTE: This isn't scalb, this is ldexp
                    (values (+ (square (make-flonum* x (- k)))

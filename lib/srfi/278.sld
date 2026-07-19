@@ -39,8 +39,8 @@
      (import (only (srfi 144)
                    flonum
                    fl-greatest
-                   fl-least
                    fl-epsilon
+                   fladjacent
                    fl-pi/2
                    fl-pi/4
                    make-flonum
@@ -49,12 +49,20 @@
                    flsinh
                    flcosh
                    flatanh
-                   fllog1+)))
+                   fllog1+))
+     (begin (define fl-least-normal
+              (- 1.0 (fladjacent 1.0 0.0)))))
     ;; If you don't have SRFI 144, you have to define the following
     ;; here:
     ;;
+    ;; flonum (which is probably just `inexact`)
     ;; fl-greatest
+    ;; fl-least-normal (not fl-least; the smallest normal number)
+    ;; fl-epsilon
     ;; fl-pi/2
+    ;; fl-pi/4
+    ;; make-flonum (aka ldexp)
+    ;; flexponent (aka logb)
     ;; fllog1+
     ;; flasinh
     ;; flsinh
