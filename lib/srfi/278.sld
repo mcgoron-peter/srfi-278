@@ -46,23 +46,23 @@
                    fllog1+)))
     ;; If you don't have SRFI 144, you have to define the following
     ;; here:
-    ;; 
+    ;;
     ;; fl-greatest
     ;; fl-pi/2
     ;; fllog1+
     ;; flasinh
     ;; flatanh
-    ;; 
+    ;;
     ;; If your inexact real type is a IEEE 754 format number, then you
     ;; can use the SRFI 144 sample implementation.
-    ;; 
+    ;;
     ;; The other imports are used to implement Kahan's complex number
     ;; versions of Scheme's built-in procedures, like sqrt, asin, etc.
     ;; If neither 276 or 144 are available, then the implementation will
     ;; fall back to the standard procedures. Note that if the
     ;; implementation's procedures are inaccurate, it will affect the
     ;; results of the procedures here.
-    ;; 
+    ;;
     ;; I would be very interested in any Schemes using non-standard
     ;; floating point formats.
 )
