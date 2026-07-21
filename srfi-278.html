@@ -231,6 +231,8 @@ SPDX-License-Identifier: MIT
 <p class="never-break-inside">
   <a href="#conjugate"><code>conjugate</code></a>
   <a href="#round-away"><code>round-away</code></a>
+  <a href="#imaginaryp"><code>imaginary?</code></a>
+  <a href="#strictly-imaginaryp"><code>strictly-imaginary?</code></a>
   <a href="#strictly-realp"><code>strictly-real?</code></a>
   <a href="#strictly-rationalp"><code>strictly-rational?</code></a>
   <a href="#strictly-integerp"><code>strictly-integer?</code></a>
@@ -290,6 +292,37 @@ SPDX-License-Identifier: MIT
 <code class="example-code">(round-away 3.6)</code> ⇒ 4.0
 <code class="example-code">(round-away 3.5)</code> ⇒ 4.0
 <code class="example-code">(round-away 3.4)</code> ⇒ 3.0</pre>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#imaginaryp" id="imaginaryp"
+                        >imaginary?</a> <var>obj</var>)</code><br>
+<code class="signature">(<a href="#strictly-imaginaryp" id="strictly-imaginaryp"
+                        >strictly-imaginary?</a> <var>obj</var>)</code><br>
+</div>
+<p>
+  The procedure <code>imaginary?</code> is equivalent to
+</p>
+
+<pre>(define (imaginary? obj)
+  (and (complex? obj)
+       (zero? (real-part obj))))</pre>
+
+<p>
+  The procedure <code>strictly-imaginary?</code> is equivalent to
+</p>
+
+<pre>(define (strictly-imaginary? obj)
+  (and (complex? obj)
+       (exact? (real-part obj))
+       (zero? (real-part obj))))</pre>
+
+<pre
+><code class="example-code">(imaginary? 0.0+1.0i)</code>      ⇒ #t
+<code class="example-code">(imaginary? -0.0+1.0i)</code>      ⇒ #t
+<code class="example-code">(strictly-imaginary? 0.0+1.0i)</code>  ⇒ #t
+<code class="example-code">(strictly-imaginary? -0.0+1.0i)</code> ⇒ #t
+<code class="example-code">(strictly-imaginary? 1.0i)</code>      ⇒ #t</pre>
 
 <div class="feature">
 <span class="category">(srfi 278)<br>procedure</span>
