@@ -21,6 +21,16 @@
 (define (exact-integer? obj)
   (and (integer? obj) (exact? obj)))
 
+(define (imaginary? obj)
+  (and (complex? obj)
+       (zero? (real-part obj))))
+
+(define strictly-imaginary?
+  (if needs-strict-definition?
+      (lambda (obj)
+        (and (imaginary? obj) (exact? (real-part obj))))
+      imaginary?))
+
 (define strictly-real?
   (if needs-strict-definition?
       (lambda (obj)

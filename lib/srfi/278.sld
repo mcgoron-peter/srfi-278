@@ -8,6 +8,7 @@
                   (nan? r7rs:nan?))
           (scheme complex))
   (export nan? exact-integer?
+          imaginary? strictly-imaginary?
           strictly-real? strictly-rational? strictly-integer?
           sinh cosh tanh asinh acosh atanh
           conjugate

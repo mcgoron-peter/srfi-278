@@ -55,6 +55,8 @@
 
 (test-begin "SRFI 278")
 
+;;; TODO: Tests for strictly-real?, imaginary?, etc.
+
 (test-group "exact-integer?"
   (test-assert (exact-integer? 1))
   (test-assert (exact-integer? 0))
