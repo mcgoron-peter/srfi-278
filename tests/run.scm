@@ -69,7 +69,7 @@
 (test-group "round-away"
   (test-eqv +inf.0 (round-away +inf.0))
   (test-eqv -inf.0 (round-away -inf.0))
-  (test-eqv +nan.0 (round-away +nan.0))
+  (test-assert (nan? (round-away +nan.0)))
   (test-approximate 4.0
                     (round-away 3.5)
                     1e-6)
@@ -161,19 +161,19 @@
   ;; value that is approached counter-clockwise. 
   (test-group "(atanh 1.0+0.0i)"
     (test-real-and-imag (if signed-imaginary-zero?
-                            -inf.0+.7853981633974483i
-                            -inf.0-.7853981633974483i)
+                            +inf.0+.7853981633974483i
+                            +inf.0-.7853981633974483i)
                         (atanh 1.0+0.0i)))
   (test-group "(atanh 1.0-0.0i)"
-    (test-real-and-imag -inf.0-.7853981633974483i
+    (test-real-and-imag +inf.0-.7853981633974483i
                         (atanh 1.0-0.0i)))
   (test-group "(atanh -1.0+0.0i)"
-    (test-real-and-imag +inf.0+.7853981633974483i
+    (test-real-and-imag -inf.0+.7853981633974483i
                         (atanh -1.0+0.0i)))
   (test-group "(atanh -1.0-0.0i)"
     (test-real-and-imag (if signed-imaginary-zero?
-                            +inf.0-.7853981633974483i
-                            +inf.0+.7853981633974483i)
+                            -inf.0-.7853981633974483i
+                            -inf.0+.7853981633974483i)
                         (atanh -1.0-0.0i)))
   (test-group "(atanh 2.0+0.0i)"
     (test-real-and-imag (if signed-imaginary-zero?

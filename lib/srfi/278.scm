@@ -237,7 +237,7 @@
        (make-rectangular (real-part (/ z))
                          (* fl-pi/2 (sign y))))
       ((and (= x 1.0) (zero? y))
-       (make-rectangular -inf.0
+       (make-rectangular +inf.0
                          (* (sign y) fl-pi/4)))
       ((= x 1.0)
        (let ((ay+rho (+ (abs y) rho)))
@@ -294,6 +294,7 @@
                 (/ ret (+ 1.0 (* beta (square s))))))))))
 
 (define (round-away x)
-  (if (negative? x)
-      (truncate (- x 1/2))
-      (truncate (+ x 1/2))))
+  (cond
+    ((or (infinite? x) (nan? x)) x)
+    ((negative? x) (truncate (- x 1/2)))
+    (else (truncate (+ x 1/2)))))
