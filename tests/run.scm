@@ -67,6 +67,9 @@
   (test-assert (not (nan? "NaN"))))
 
 (test-group "round-away"
+  (test-eqv +inf.0 (round-away +inf.0))
+  (test-eqv -inf.0 (round-away -inf.0))
+  (test-eqv +nan.0 (round-away +nan.0))
   (test-approximate 4.0
                     (round-away 3.5)
                     1e-6)

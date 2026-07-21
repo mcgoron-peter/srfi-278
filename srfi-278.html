@@ -188,17 +188,19 @@ SPDX-License-Identifier: MIT
 </p>
 
 <p>
-  The common extensions are the <code>conjugate</code> procedure and the
-  (inverse) hyperbolic functions. The (inverse) hyperbolic functions are
-  commonly provided on Schemes that provide complex arithmetic (for example,
+  The common extensions are the <a
+  href="#conjugate"><code>conjugate</code></a> procedure and the (inverse)
+  hyperbolic functions. The (inverse) hyperbolic functions are commonly
+  provided on Schemes that provide complex arithmetic (for example,
   Gambit, Chez, Racket, Gauche, and Guile) because those implementations
   are required to implement complex (inverse) trigonometric functions,
   which are closely connected to complex (inverse) hyperbolic functions.
 </p>
 
 <p>
-  The procedure <code>round-away</code> has been added to correspond to
-  the roundTiesToAway rounding mode in IEEE 754-2019.
+  The procedure <a href="#round-away"><code>round-away</code></a>
+  has been added to correspond to the roundTiesToAway rounding mode in
+  IEEE 754-2019.
 </p>
 
 <h2 id="specification">Specification</h2>
@@ -278,6 +280,7 @@ SPDX-License-Identifier: MIT
   <a href="#ieee">[2]</a> rounding mode roundTiesToAway.
 </p>
 <p>This procedure returns an exact value given an exact argument.</p>
+<p>When passed an infinity or NaN value, that value is returned.</p>
 
 <pre
 ><code class="example-code">(round-away 2.5)</code> ⇒ 3.0
