@@ -486,6 +486,73 @@ go according to the following formulæ:</p>
 <code class="example-code">(asinh 0.0+2.0i)</code> ⇒ 1.3169578969248166+1.5707963267948966i
 <code class="example-code">(asinh -0.0+2.0i)</code> ⇒ -1.3169578969248166+1.5707963267948966i</pre>
 
+<h3 id="mixed-arithmetic"><a href="#mixed-arithmetic">&para;</a> Provisions for mixed arithmetic</h3>
+
+<p>
+  Some implementations of mixed real-complex arithmetic are not implemented
+  such that the following identities are followed:
+</p>
+
+<pre
+><code class="example-code">(* 1 <var>z</var>)</code>    ⇒ <var>z</var>
+<code class="example-code">(* +i (* +i (* +i (* +i z))))</code> ⇒ <var>z</var></pre>
+
+<p>
+  This happens when <var>z</var> has an infinity/NaN in the real or
+  imaginary part. Implementations <strong>should</strong> implement the
+  following (for any Scheme number <var>z</var>), which allow
+  for the above identities to work:
+</p>
+
+<ul>
+<li>Support for possibly inexact
+    strictly imaginary numbers. These are comple numbers with exact zero
+    real parts, and possibly inexact imaginary parts.</li>
+<li><code>(* 0 <var>z</var>) ⇒ 0 </code>.</li>
+<li><code>(/ 0 <var>z</var>) ⇒ 0</code>.</li>
+<li><code>(+ 0 <var>z</var>) ⇒ <var>z</var></code>.</li>
+<li>Make
+    <code>(- 0 <var>z</var>)</code>
+    equivalent to <code>(- <var>z</var>)</code>.</li>
+</ul>
+
+<p>
+  For example, in an implementation that uses the above rules,
+  <code>(* 1.0 +inf.0+2.0i)</code> becomes
+</p>
+
+<pre
+>(make-rectangular (- (* 1.0 +inf.0) (* 0 2.0))
+                  (+ (* 1.0 2.0) (* 0 +inf.0))) ⇒ +inf.0+2.0i</pre>
+
+<p>
+  Note the expression <code>(* 0 +inf.0)</code>. If the implementation
+  converted <code>0</code> to <code>0.0</code>, then the implementation
+  would have instead evaluated to <code>+inf.0+nan.0i</code>.
+</p>
+
+<h3 id="exact-transcendental"><a href="#exact-transcendental">&para;</a> Special exact values for trancendental functions</h3>
+
+<p>
+  Implementations <strong>should</strong> return exact results for the
+  following special arguments to transcendental functions.
+</p>
+
+<pre
+><code class="example-code">(sinh 0)</code> ⇒ 0
+<code class="example-code">(cosh 0)</code> ⇒ 1
+<code class="example-code">(tanh 0)</code> ⇒ 0
+<code class="example-code">(asinh 0)</code> ⇒ 0
+<code class="example-code">(acosh 1)</code> ⇒ 0
+<code class="example-code">(atanh 0)</code> ⇒ 0
+<code class="example-code">(log 1)</code> ⇒ 0
+<code class="example-code">(exp 0)</code> ⇒ 1
+<code class="example-code">(sin 0)</code> ⇒ 0
+<code class="example-code">(cos 0)</code> ⇒ 1
+<code class="example-code">(tan 0)</code> ⇒ 0
+<code class="example-code">(atan 0)</code> ⇒ 0
+<code class="example-code">(asin 0)</code> ⇒ 0</pre>
+
 <h2 id="implementation">Implementation</h2>
 
 <p>
