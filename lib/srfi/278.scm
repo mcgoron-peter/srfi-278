@@ -249,21 +249,21 @@
        (make-rectangular +inf.0
                          (* (sign y) fl-pi/4)))
       ((= x 1.0)
-       (let ((ay+rho (+ (abs y) rho)))
+       (let ((absy (abs y)))
          (make-rectangular (log (/ (sqrt (sqrt (+ 4.0 (square y))))
-                                   (sqrt ay+rho)))
+                                   (sqrt absy)))
                            (* (/ (+ fl-pi/2
-                                    (atan ay+rho 2.0))
+                                    (atan absy 2.0))
                                  2.0)
                               (sign y)))))
       (else
-       (let ((y+rho (square (+ (abs y) rho))))
+       (let ((y^2 (square y)))
          (make-rectangular (/ (fllog1+ (/ (* 4.0 x)
                                           (+ (square (- 1.0 x))
-                                             y+rho)))
+                                             y^2)))
                               4.0)
                            (/ (angle (+ (* (- 1.0 x) (+ 1.0 x))
-                                        (- y+rho)
+                                        (- y^2)
                                         (make-rectangular
                                          0.0
                                          (* 2.0 y))))

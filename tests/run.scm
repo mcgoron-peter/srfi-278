@@ -204,7 +204,7 @@
     (test-real-and-imag (naive-atanh 2.0)
                         (atanh 2.0)))
   (test-group "(atanh 5+10i)"
-    (test-real-and-imag (naive-atanh 5+10i)
+    (test-real-and-imag .03976617365742184+1.490839765215787i
                         (atanh 5+10i))))
 
 (test-group "acosh"
