@@ -1,7 +1,8 @@
 ;;; SPDX-FileCopyrightText: 2026 Peter McGoron
 ;;; SPDX-License-Identifier: MIT
 
-(import (except (scheme base) exact-integer?)
+(import (except (scheme base) exact-integer? real? integer? rational?)
+        (prefix (only (scheme base) real?) r5rs:)
         (scheme write)
         (scheme process-context)
         (scheme complex)
@@ -20,7 +21,13 @@
   ((library (srfi 64))
    (define (test-exit)
      (exit (+ (test-runner-pass-count the-test-runner)
-              (test-runner-xpass-count the-test-runner)))))
+              (test-runner-xpass-count the-test-runner))))
+   (define-syntax skip-unless
+     (syntax-rules ()
+       ((_ test expr)
+        (begin
+          (unless test (test-skip 1))
+          expr)))))
   (chicken-6
    (current-test-epsilon 0.01)
    (define-syntax test-approximate
@@ -35,6 +42,10 @@
           (%test name value actual)))
        ((_ name expected actual error)
         (%test name expected actual))))
+   (define-syntax skip-unless
+     (syntax-rules ()
+       ((_ test expr)
+        (when test expr))))
    (define-syntax test-eqv
      (syntax-rules ()
        ((_ expected actual) (%test expected actual))
@@ -53,9 +64,41 @@
 (define exact-complex-numbers?
   (exact? 1+2i))
 
+(define needs-strict-definition?
+  (cond
+    ((not (r5rs:real? 0.0+0.0i)) #f)    ; Already stricter definition
+    (signed-imaginary-zero? #t)
+    ((exact? (imag-part 0.0)) #t)
+    (else #f)))
+
 (test-begin "SRFI 278")
 
-;;; TODO: Tests for strictly-real?, imaginary?, etc.
+(test-group "real?"
+  (test-assert (real? 1.0))
+  (test-assert (real? 1.0+0i))
+  (skip-unless needs-strict-definition?
+    (test-assert (not (real? 1.0+0.0i))))
+  (skip-unless needs-strict-definition?
+    (test-assert (not (real? 1.0-0.0i)))))
+
+(test-group "rational?"
+  (test-assert (rational? 1/2))
+  (test-assert (rational? 1/2+0i))
+  (test-assert (rational? 0.5))
+  (skip-unless needs-strict-definition?
+    (test-assert (not (rational? 0.5+0.0i))))
+  (skip-unless needs-strict-definition?
+    (test-assert (not (rational? 0.5-0.0i)))))
+
+(test-group "integer?"
+  (test-assert (integer? 1.0))
+  (test-assert (integer? 1))
+  (test-assert (integer? 1+0i))
+  (test-assert (integer? 1-0i))
+  (skip-unless needs-strict-definition?
+    (test-assert (not (integer? 1+0.0i))))
+  (skip-unless needs-strict-definition?
+    (test-assert (not (integer? 1-0.0i)))))
 
 (test-group "exact-integer?"
   (test-assert (exact-integer? 1))
@@ -96,13 +139,8 @@
   (test-eqv 1 (conjugate 1))
   (test-eqv -1 (conjugate -1))
   (test-eqv 1-2i (conjugate 1+2i))
-  (cond-expand
-    ((library (srfi 64))
-     (unless signed-imaginary-zero?
-       (test-skip 1)))
-    (else
-     (when signed-imaginary-zero?
-       (test-eqv -0.0 (imag-part (conjugate 1.0+0.0i))))))
+  (skip-unless signed-imaginary-zero?
+    (test-eqv -0.0 (imag-part (conjugate 1.0+0.0i))))
   (test-eqv +i (conjugate -i)))
 
 (test-group "sinh"

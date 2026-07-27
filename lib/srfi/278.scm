@@ -10,10 +10,34 @@
 
 (define needs-strict-definition?
   (cond
-    ((not (real? 0.0+0.0i)) #f)
+    ((not (r5rs:real? 0.0+0.0i)) #f)    ; Already stricter definition
     (signed-imaginary-zero? #t)
     ((exact? (imag-part 0.0)) #t)
     (else #f)))
+
+(define (imaginary? obj)
+  (and (complex? obj)
+       (eqv? 0 (real-part obj))))
+
+(define real?
+  (if needs-strict-definition?
+      (lambda (obj)
+        (and (complex? obj)
+             (eqv? 0 (imag-part obj))))
+      r5rs:real?))
+
+(define rational? 
+  (if needs-strict-definition?
+      (lambda (obj)
+        (and (real? obj) (r5rs:real? obj)))
+      r5rs:rational?))
+
+(define integer?
+  (if needs-strict-definition?
+      (lambda (obj)
+        (and (rational? obj)
+             (eqv? 1 (denominator obj))))
+      r5rs:integer?))
 
 (define (nan? obj)
   (and (number? obj) (r7rs:nan? obj)))
@@ -21,42 +45,10 @@
 (define (exact-integer? obj)
   (and (integer? obj) (exact? obj)))
 
-(define (imaginary? obj)
-  (and (complex? obj)
-       (zero? (real-part obj))))
-
-(define strictly-imaginary?
-  (if needs-strict-definition?
-      (lambda (obj)
-        (and (imaginary? obj) (exact? (real-part obj))))
-      imaginary?))
-
-(define strictly-real?
-  (if needs-strict-definition?
-      (lambda (obj)
-        (and (complex? obj)
-             (zero? (imag-part obj))
-             (exact? (imag-part obj))))
-      real?))
-
-(define strictly-rational?
-  (if needs-strict-definition?
-      (lambda (obj)
-        (and (rational? obj)
-             (exact? (imag-part obj))))
-      rational?))
-
-(define strictly-integer?
-  (if needs-strict-definition?
-      (lambda (obj)
-        (and (integer? obj)
-             (exact? (imag-part obj))))
-      integer?))
-
 (define (conjugate z)
   ;; Return exact value given possibly exact arguments.
   ;; For implementations with only inexact complex numbers.
-  (if (strictly-real? z)
+  (if (real? z)
       z
       (make-rectangular (real-part z)
                         (- (imag-part z)))))
@@ -127,7 +119,7 @@
   (else (define csqrt sqrt)))
 
 (define (sinh z)
-  (if (strictly-real? z)
+  (if (real? z)
       (flsinh (flonum z))
       (make-rectangular (* (flsinh (real-part z))
                            (cos (imag-part z)))
@@ -135,7 +127,7 @@
                            (sin (imag-part z))))))
 
 (define (cosh z)
-  (if (strictly-real? z)
+  (if (real? z)
       (flcosh (flonum z))
       (let ((x (flonum (real-part z)))
             (y (imag-part z)))
@@ -179,7 +171,7 @@
 (define asinh
   (if signed-imaginary-zero?
       (lambda (z)
-        (if (strictly-real? z)
+        (if (real? z)
             (flasinh (flonum z))
             (*-i (casin (*+i z)))))
       (lambda (z)
@@ -271,9 +263,9 @@
 
 (define (atanh z)
   (cond
-    ((and (strictly-real? z) (eqv? (abs z) 1))
+    ((and (real? z) (eqv? (abs z) 1))
      (error 'atanh "atanh has a singularity at 1 and -1"))
-    ((and (strictly-real? z) (< -1.0 z 1.0))
+    ((and (real? z) (< -1.0 z 1.0))
      (flatanh (flonum z)))
     (else (c* (sign (real-part z)) (conjugate (%atanh z))))))
 
@@ -289,12 +281,12 @@
          (ax (abs x)))
     (cond
       ((> ax tanh-overflow-treshold)
-       (if (strictly-real? z)
+       (if (real? z)
            (* 1.0 (sign x))
            (make-rectangular (* 1.0 (sign x))
                              (* 0.0 (sign y)))))
       ((> ax tanh-overflow-low-treshold)
-       (if (strictly-real? z)
+       (if (real? z)
            (* 1.0 (sign x))
            (let ((y*2 (* y 2))
                  (cosh-x*2 (flcosh (* 2 x))))
@@ -318,7 +310,7 @@
               (rho (sqrt (+ 1.0 (square s)))))
          (if (infinite? t)
              (make-rectangular (/ rho s) (/ t))
-             (let ((ret (if (strictly-real? z)
+             (let ((ret (if (real? z)
                             (* beta rho s)
                             (make-rectangular (* beta rho s)
                                               t))))
