@@ -216,12 +216,6 @@
       0
       (%acosh z)))
 
-;;; These are constants defined in Kahan's paper.
-;;; They don't have better names, AFAIK.
-
-(define theta (/ (sqrt fl-greatest) 4))
-(define rho (/ theta))
-
 (define (sign x)
   (cond
     ((and (exact? x) (zero? x)) 1)
@@ -237,6 +231,11 @@
      (make-rectangular (* x (real-part z))
                        (* x (imag-part z)))))
   (else (define c* *)))
+
+;; These are constants defined in Kahan's paper.
+;; They don't have better names, AFAIK.
+(define theta (/ (sqrt fl-greatest) 4))
+(define rho (/ theta))
 
 (define (%atanh z)
   (let* ((z (c* (sign (real-part z)) (conjugate z)))

@@ -130,7 +130,9 @@ SPDX-License-Identifier: MIT
 <p>
   This SRFI defines miscellaneous procedures on numbers that were either
   missing from the <span class="report-name">R<sup>7</sup>RS</span> or are
-  common extensions.
+  common extensions. These extensions include complex (inverse) hyperbolic
+  functions and the <span class="report-name">R<sup>6</sup>RS</span>
+  numeric tower predicates.
 </p>
 
 <h2 id="issues">Issues</h2>
@@ -146,6 +148,12 @@ SPDX-License-Identifier: MIT
   <li>Are there better ways to test the procedures? Like known pathological
       inputs?
   </li>
+  <li>The sample implementation should incorporate improvements to Kahan’s
+      algorithm like that seen in the Gambit implementation.
+  </li>
+  <li>The sample implementation should respect the counter-clockwise rule
+      when dealing with mixed-exactness complex numbers.
+  </li>
 </ol>
 
 <h2 id="rationale">Rationale</h2>
@@ -156,36 +164,18 @@ SPDX-License-Identifier: MIT
 
 <ul>
   <li>Standard procedures with extended domains (<code>exact-integer?</code>).</li>
-  <li>Procedures that mimic <span class="report-name">R<sup>6</sup>RS</span>
-      procedures (<code>strictly-real?</code>).
-  </li>
   <li>Procedures that are common extensions (<code>conjugate</code>, hyperbolic functions).</li>
   <li>Procedures that are related to IEEE 754-2019.</li>
+  <li>Predicates for the <span class="report-name">R<sup>6</sup>RS</span>
+      numeric tower (<code>real?</code>).
+  </li>
 </ul>
 
 <p>
   The extended-domain procedures are more useful because they can be
   used without invoking “it is an error” behavior. For example, in this
   SRFI, <code>(exact-integer? '())</code> and <code>(nan? '())</code>
-  both return <code>#f</code>. (Some proposed extensions to standard
-  procedures, such as
-  <a href="https://codeberg.org/scheme/r7rs/issues/193"
-  ><code>gcd</code> on rational arguments</a>, should be a part of a
-  different SRFI, such as
-  <a href="https://srfi.schemers.org/srfi-141/">SRFI 141</a>
-  extended to non-integers.)
-</p>
-
-<p>
-  The <span class="report-name">R<sup>6</sup>RS</span> procedures are
-  useful when determining whether a number is exactly on the real number line,
-  as opposed to being approximately on the real number line. Procedures
-  like <span class="report-name">R<sup>6</sup>RS</span>’s
-  <code>div-and-mod</code> are <em>not</em> supplied. They are similarly
-  relegated to an extended SRFI 141.
-
-
-</p>
+  both return <code>#f</code>.</p>
 
 <p>
   The common extensions are the <a
@@ -201,6 +191,70 @@ SPDX-License-Identifier: MIT
   The procedure <a href="#round-away"><code>round-away</code></a>
   has been added to correspond to the roundTiesToAway rounding mode in
   IEEE 754-2019.
+</p>
+
+<p>
+  The <span class="report-name">R<sup>6</sup>RS</span> number predicates
+  are more useful than the <span class="report-name">R<sup>5</sup>RS</span>
+  equivalents. This is because the
+  <span class="report-name">R<sup>6</sup>RS</span> and
+  <span class="report-name">R<sup>7</sup>RS</span> introduced signed inexact
+  zero to the number system. That means that <code>1.0+0.0i</code>,
+  <code>1.0-0.0i</code>, and <code>1.0</code> may be distinct. The
+  <span class="report-name">R<sup>5</sup>RS</span> definition says each
+  of these is <code>real?</code>: this SRFI would say that only
+  <code>1.0</code> is <code>real?</code>, and the other two are not.
+</p>
+
+<p>
+  The reason for this is the interpretation of the sign of inexact zero.
+  A positive inexact zero is a number that is potentially above zero,
+  but too small for the number format, and similarly for negative
+  inexact zero. Hence a number with an inexact zero imaginary part is
+  potentially not on the real axis. This has consequences for functions
+  that have branch cuts on the real axis, in particular, functions like
+  <a href="#atanh"><code>atanh</code></a>, which has a branch cut when
+  the real part |<var>x</var>| ≥ 1. For example:
+</p>
+
+<pre
+><code class="example-code">(atanh 2.0+0.0i)</code> ⇒ .5493061443340549+π/2i
+<code class="example-code">(atanh 2.0-0.0i)</code> ⇒ .5493061443340549-π/2i
+<code class="example-code">(angle -1.0+0.0i)</code> ⇒ π
+<code class="example-code">(angle -1.0-0.0i)</code> ⇒ -π
+</pre>
+
+<p>
+  The interpretation of <em>unsigned</em> zero imaginary part is more
+  complicated. One cannot promote unsigned imaginary zero to inexact
+  imaginary zero of a fixed sign. This is because the principal values
+  of log and angle are defined for unsigned imaginary zero such that
+  values are continuous when approached counterclockwise <a href="#kahan1987">[1]</a>.
+  This is one of the reasons why a number with an exact (unsigned) zero
+  imaginary part is <code>real?</code>, while ones with inexact
+  (signed) zero imaginary part is not <code>real?</code>.
+</p>
+
+<p>
+  The number predicates are exported with the same names as the standard
+  predicates to make it easier to handle code that assumes the
+  <span class="report-name">R<sup>6</sup>RS</span> semantics. These
+  procedures are likely to be added to the
+<span class="report-name">R<sup>7</sup>RS</span>-Large prefixed with
+  <code>strictly-</code>. Hopefully a future standard will keep the
+  <span class="report-name">R<sup>6</sup>RS</span> semantics.
+</p>
+
+<p> Procedures
+  like <span class="report-name">R<sup>6</sup>RS</span>’s
+  <code>div-and-mod</code> are <em>not</em> supplied. 
+  Some proposed extensions to standard
+  procedures, such as
+  <a href="https://codeberg.org/scheme/r7rs/issues/193"
+  ><code>gcd</code> on rational arguments</a>, are also not included. These
+  extensions should be relegated to a version of
+  <a href="https://srfi.schemers.org/srfi-141/">SRFI 141</a>
+  extended to non-integers.
 </p>
 
 <h2 id="specification">Specification</h2>
@@ -223,6 +277,10 @@ SPDX-License-Identifier: MIT
   of a complex value is an infinity or a zero. An implementation
   <strong>should</strong> evaluate to a number that has the appropriately
   signed infinity or zero in that part (in the sense of <code>eqv?</code>).
+</p>
+
+<p>
+  The examples assume the existence of mixed exactness complex numbers.
 </p>
 
 <h3 id="library">Library</h3>
@@ -297,8 +355,6 @@ SPDX-License-Identifier: MIT
 <span class="category">(srfi 278)<br>procedure</span>
 <code class="signature">(<a href="#imaginaryp" id="imaginaryp"
                         >imaginary?</a> <var>obj</var>)</code><br>
-<code class="signature">(<a href="#strictly-imaginaryp" id="strictly-imaginaryp"
-                        >strictly-imaginary?</a> <var>obj</var>)</code><br>
 </div>
 <p>
   The procedure <code>imaginary?</code> is equivalent to
@@ -306,23 +362,12 @@ SPDX-License-Identifier: MIT
 
 <pre>(define (imaginary? obj)
   (and (complex? obj)
-       (zero? (real-part obj))))</pre>
-
-<p>
-  The procedure <code>strictly-imaginary?</code> is equivalent to
-</p>
-
-<pre>(define (strictly-imaginary? obj)
-  (and (complex? obj)
-       (exact? (real-part obj))
-       (zero? (real-part obj))))</pre>
+       (eqv? (real-part obj) 0)))</pre>
 
 <pre
-><code class="example-code">(imaginary? 0.0+1.0i)</code>      ⇒ #t
-<code class="example-code">(imaginary? -0.0+1.0i)</code>      ⇒ #t
-<code class="example-code">(strictly-imaginary? 0.0+1.0i)</code>  ⇒ #t
-<code class="example-code">(strictly-imaginary? -0.0+1.0i)</code> ⇒ #t
-<code class="example-code">(strictly-imaginary? 1.0i)</code>      ⇒ #t</pre>
+><code class="example-code">(imaginary? 0.0+1.0i)</code>  ⇒ #f
+<code class="example-code">(imaginary? -0.0+1.0i)</code> ⇒ #f
+<code class="example-code">(imaginary? 1.0i)</code>      ⇒ #t</pre>
 
 <div class="feature">
 <span class="category">(srfi 278)<br>procedure</span>
@@ -459,8 +504,11 @@ The value of <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><
 where <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>angle</mi><mo>⁡</mo><mi>z</mi></mrow></math> is the angle of <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>z</mi><mo>=</mo><mi>a</mi><mo>⁢</mo><msup><mi>e</mi><mrow><mi>i</mi><mo>⁢</mo><mi>θ</mi></mrow></msup></mrow></math> specified as </p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>angle</mi><mo>⁡</mo><mi>z</mi><mo>=</mo><mi>b</mi><mo>+</mo><mn>2</mn><mo>⁢</mo><mi>i</mi><mo>⁢</mo><mi>n</mi></mrow></math><p>
 with <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>n</mi></math> chosen such that <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>−</mo><mo>⁢</mo><mi>π</mi><mo>≤</mo><mo>angle</mo><mo>⁡</mo><mo>z</mo><mo>≤</mo><mi>π</mi></mrow></math>.</p>
+
+<p>The principal expression for square root is <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><msqrt><mi>z</mi></msqrt><mo>=</mo><msup><mi>z</mi><mrow><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msup></math>.</p>
+
 <p>
-With log defined this way, the
+With log and square root defined this way, the
 values of the transcendental functions relevant to this SRFI
 go according to the following formulæ:</p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mtable><mtr><mtd><msup><mi>sin</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi><mo>=</mo><mo>−</mo><mi>i</mi><mo>⁢</mo><mi>log</mi><mo>⁡</mo><mrow><mo>(</mo><mi>i</mi><mo>⁢</mo><mi>z</mi><mo>+</mo><msqrt><mn>1</mn><mo>-</mo><msup><mi>z</mi><mn>2</mn></msup></msqrt><mo>)</mo></mrow></mtd></mtr><mtr><mtd><msup><mi>cos</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi><mo>=</mo><mfrac><mi>π</mi><mn>2</mn></mfrac><mo>−</mo><msup><mi>sin</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi></mtd></mtr><mtr><mtd><msup><mi>tan</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi><mo>=</mo><mfrac><mrow><mi>log</mi><mo>⁡</mo><mrow><mo>(</mo><mn>1</mn><mo>+</mo><mi>i</mi><mo>⁢</mo><mi>z</mi><mo>)</mo></mrow><mo>−</mo><mi>log</mi><mrow><mo>(</mo><mn>1</mn><mo>−</mo><mi>i</mi><mo>⁢</mo><mi>z</mi><mo>)</mo></mrow></mrow><mrow><mn>2</mn><mo>⁢</mo><mi>i</mi></mrow></mfrac></mtd></mtr><mtr><mtd><msup><mi>tanh</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi><mo>=</mo><mfrac><mrow><mi>log</mi><mrow><mo>(</mo><mn>1</mn><mo>+</mo><mi>z</mi><mo>)</mo></mrow><mo>−</mo><mi>log</mi><mrow><mo>(</mo><mn>1</mn><mo>-</mo><mi>z</mi><mo>)</mo></mrow></mrow><mn>2</mn></mfrac></mtd></mtr><mtr><mtd><msup><mi>sinh</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi><mo>=</mo><mi>log</mi><mrow><mo>(</mo><mi>z</mi><mo>+</mo><msqrt><mn>1</mn><mo>+</mo><msup><mi>z</mi><mn>2</mn></msup></msqrt><mo>)</mo></mrow></mtd></mtr><mtr><mtd><msup><mi>cosh</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup><mo>⁡</mo><mi>z</mi><mo>=</mo><mrow><mn>2</mn><mo>⁢</mo><mi>log</mi><mrow><mo>(</mo><msqrt><mfrac><mrow><mn>1</mn><mo>+</mo><mi>z</mi></mrow><mn>2</mn></mfrac></msqrt><mo>+</mo><msqrt><mfrac><mrow><mn>z</mn><mo>-</mo><mi>1</mi></mrow><mn>2</mn></mfrac></msqrt><mo>)</mo></mrow></mrow></mtd></mtr></mtable></math>
@@ -503,14 +551,14 @@ go according to the following formulæ:</p>
 <p>
   This happens when <var>z</var> has an infinity/NaN in the real or
   imaginary part. Implementations <strong>should</strong> implement the
-  following (for any Scheme number <var>z</var>), which allow
-  for the above identities to work:
+  following (for any Scheme number <var>z</var>, including infinities, NaNs,
+  and inexact numbers), which allow for the above identities to work:
 </p>
 
 <ul>
-<li>Support for possibly inexact
-    strictly imaginary numbers. These are comple numbers with exact zero
-    real parts, and possibly inexact imaginary parts.</li>
+<li>Support for mixed exactness complex numbers. These are complex numbers
+    with exact real parts and inexact imaginary parts, or inexact
+    real parts and exact imaginary parts.</li>
 <li><code>(* 0 <var>z</var>) ⇒ 0 </code>.</li>
 <li><code>(/ 0 <var>z</var>) ⇒ 0</code>.</li>
 <li><code>(+ 0 <var>z</var>) ⇒ <var>z</var></code>.</li>
