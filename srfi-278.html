@@ -145,9 +145,7 @@ SPDX-License-Identifier: MIT
   <li>I am unsure whether the requirements on the inverse hyperbolic functions
       are sufficient to capture the behavior shown in the examples.
   </li>
-  <li>Are there better ways to test the procedures? Like known pathological
-      inputs?
-  </li>
+  <li>Incoroporate Gambit’s test suite. </li>
   <li>The sample implementation should incorporate improvements to Kahan’s
       algorithm like that seen in the Gambit implementation.
   </li>
@@ -290,10 +288,9 @@ SPDX-License-Identifier: MIT
   <a href="#conjugate"><code>conjugate</code></a>
   <a href="#round-away"><code>round-away</code></a>
   <a href="#imaginaryp"><code>imaginary?</code></a>
-  <a href="#strictly-imaginaryp"><code>strictly-imaginary?</code></a>
-  <a href="#strictly-realp"><code>strictly-real?</code></a>
-  <a href="#strictly-rationalp"><code>strictly-rational?</code></a>
-  <a href="#strictly-integerp"><code>strictly-integer?</code></a>
+  <a href="#realp"><code>real?</code></a>
+  <a href="#rationalp"><code>rational?</code></a>
+  <a href="#integerp"><code>integer?</code></a>
   <a href="#exact-integerp"><code>exact-integer?</code></a>
   <a href="#nanp"><code>nan?</code></a>
   <a href="#sinh"><code>sinh</code></a>
@@ -371,46 +368,13 @@ SPDX-License-Identifier: MIT
 
 <div class="feature">
 <span class="category">(srfi 278)<br>procedure</span>
-<code class="signature">(<a href="#strictly-realp" id="strictly-realp"
-                        >strictly-real?</a> <var>obj</var>)</code><br>
-<code class="signature">(<a href="#strictly-rationalp" id="strictly-rationalp"
-                        >strictly-rational?</a> <var>obj</var>)</code><br>
-<code class="signature">(<a href="#strictly-integerp" id="strictly-integerp"
-                        >strictly-integer?</a> <var>obj</var>)</code>
+<code class="signature">(<a href="#realp" id="realp"
+                        >real?</a> <var>obj</var>)</code><br>
 </div>
-
 <p>
-  Returns <code>#t</code> if the <var>obj</var> is of the corresponding
-  type, <code>(zero? (imag-part <var>obj</var>))</code> is
-  <code>#t</code>, <em>and</em> <code>(exact? (imag-part <var>obj</var>))</code>.
+  Returns <code>#t</code> iff <var>obj</var> is <code>complex?</code>
+  and <code>(eqv? 0 (imag-part <var>obj</var>))</code> is <code>#t</code>.
 </p>
-
-<div class="boxed">
-<p>
-  <span class="boxed-tag">Rationale</span>: These procedures have the
-  semantics of <code>real?</code>, <code>rational?</code>, and
-  <code>integer?</code> in the <span class="report-name">R<sup>6</sup>RS</span>.
-  It is sometimes useful to have a number represented internally as a
-  complex number even when its imaginary part is inexact zero: this
-  occurs when one wants to use the sign of the inexact zero for
-  computations. It is intended that a number that is
-  <code>strictly-real?</code>, etc. is not represented internally as
-  a compound number (compnum), and that all complex numbers with an
-  exact zero imaginary part are normalized and represented
-   as flonums, bignums, fixnums, ratnums, etc.
-</p>
-<p>
-  Another reason to distinguish between <code>real?</code> and
-  <code>strictly-real?</code> is the interpretation of what it means for
-  the imaginary part of a number to be inexact zero. When a number is
-  inexact zero, it is only <em>approximately</em> that number. As such,
-  if a number has an inexact zero imaginary part, then we don’t know if
-  it is actually on the real axis, or if the actual result of the
-  computation was actually slightly above or below the real axis.
-  On the other hand, if the imaginary part is exactly zero, then the
-  the number <em>has</em> to be on the real axis.
-</p>
-</div>
 
 <pre
 ><code class="example-code">(strictly-real? 1.0)</code> ⇒ #t
@@ -418,6 +382,31 @@ SPDX-License-Identifier: MIT
 <code class="example-code">(strictly-real? 1+0i)</code> ⇒ #t
 <code class="example-code">(strictly-real? 1.0+0.0i)</code> ⇒ #f
 <code class="example-code">(strictly-real? 1.0-0.0i)</code> ⇒ #f</pre>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#rationalp" id="rationalp"
+                        >rational?</a> <var>obj</var>)</code><br>
+</div>
+
+<p>
+  Returns <code>#t</code> iff <var>obj</var> is
+  <a href="#realp"><code>real?</code></a> and
+  there exists exact integers
+  <var>k<sub>1</sub></var>, <var>k<sub>2</sub></var> such that
+  <code>(= <var>obj</var> (/ <var>k<sub>1</sub></var> <var>k<sub>2</sub></var>))</code>.
+</p>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#integerp" id="integerp"
+                        >integer?</a> <var>obj</var>)</code><br>
+</div>
+<p>
+  Returns <code>#t</code> iff <var>obj</var> is
+  <a href="#rationalp"><code>rational?</code></a> and
+  <code>(= 1 (denominator <var>obj</var>))</code>.
+</p>
 
 <div class="feature">
 <span class="category">(srfi 278)<br>procedure</span>
