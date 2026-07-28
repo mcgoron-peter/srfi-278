@@ -2,18 +2,19 @@
 ;;; SPDX-License-Identifier: MIT
 
 (define-library (srfi 278)
-  (import (except (scheme base) exact-integer? real? rational? integer?)
+  (import (except (scheme base) exact-integer? real? rational? integer?
+                                rationalize)
           (prefix (only (scheme base) real? rational? integer?)
                   r5rs:)
           (scheme write)
           (rename (scheme inexact)
                   (nan? r7rs:nan?))
-          (scheme complex))
+          (scheme complex)
+          (scheme case-lambda))
   (export nan? exact-integer?
           imaginary? real? rational? integer?
           sinh cosh tanh asinh acosh atanh
-          conjugate
-          round-away)
+          conjugate rationalize round-away)
   (cond-expand
     ((library (srfi 276))
      (import (rename (only (srfi 276)

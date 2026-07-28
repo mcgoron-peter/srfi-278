@@ -128,11 +128,13 @@ SPDX-License-Identifier: MIT
 <h2 id="abstract">Abstract</h2>
 
 <p>
-  This SRFI defines miscellaneous procedures on numbers that were either
-  missing from the <span class="report-name">R<sup>7</sup>RS</span> or are
-  common extensions. These extensions include complex (inverse) hyperbolic
-  functions and the <span class="report-name">R<sup>6</sup>RS</span>
-  numeric tower predicates.
+  This SRFI defines procedures on Scheme numbers that aim to improve the
+  portability and usefulness of Scheme arithmetic. These procedures include
+  predicates with extended domains, hyperbolic and inverse hyperbolic
+  functions, the <span class="report-name">R<sup>6</sup>RS</span> numeric
+  tower, and additional procedures for rounding. Also included are
+  recommendations and justifications for mixed inexact/exact arithmetic
+  to make complex number arithmetic more predictable.
 </p>
 
 <h2 id="issues">Issues</h2>
@@ -145,9 +147,9 @@ SPDX-License-Identifier: MIT
   <li>I am unsure whether the requirements on the inverse hyperbolic functions
       are sufficient to capture the behavior shown in the examples.
   </li>
-  <li>Incoroporate Gambit’s test suite. </li>
-  <li>The sample implementation should incorporate improvements to Kahan’s
-      algorithm like that seen in the Gambit implementation.
+  <li>Incoroporate Gambit’s test suite.</li>
+  <li>More tests for the <a href="#rationalize"><code>rationalize</code></a>
+      procedure.
   </li>
   <li>The sample implementation should respect the counter-clockwise rule
       when dealing with mixed-exactness complex numbers.
@@ -173,7 +175,11 @@ SPDX-License-Identifier: MIT
   The extended-domain procedures are more useful because they can be
   used without invoking “it is an error” behavior. For example, in this
   SRFI, <code>(exact-integer? '())</code> and <code>(nan? '())</code>
-  both return <code>#f</code>.</p>
+  both return <code>#f</code>. In addition, the <code>rationalize</code>
+  procedure has been extended to different types of intervals to make it
+  more useful in simplifying rational numbers while also preserving
+  properties such as rounding.
+</p>
 
 <p>
   The common extensions are the <a
@@ -292,6 +298,7 @@ SPDX-License-Identifier: MIT
   <a href="#rationalp"><code>rational?</code></a>
   <a href="#integerp"><code>integer?</code></a>
   <a href="#exact-integerp"><code>exact-integer?</code></a>
+  <a href="#rationalize"><code>rationalize</code></a>
   <a href="#nanp"><code>nan?</code></a>
   <a href="#sinh"><code>sinh</code></a>
   <a href="#cosh"><code>cosh</code></a>
@@ -377,11 +384,11 @@ SPDX-License-Identifier: MIT
 </p>
 
 <pre
-><code class="example-code">(strictly-real? 1.0)</code> ⇒ #t
-<code class="example-code">(strictly-real? 1)</code> ⇒ #t
-<code class="example-code">(strictly-real? 1+0i)</code> ⇒ #t
-<code class="example-code">(strictly-real? 1.0+0.0i)</code> ⇒ #f
-<code class="example-code">(strictly-real? 1.0-0.0i)</code> ⇒ #f</pre>
+><code class="example-code">(real? 1.0)</code> ⇒ #t
+<code class="example-code">(real? 1)</code> ⇒ #t
+<code class="example-code">(real? 1+0i)</code> ⇒ #t
+<code class="example-code">(real? 1.0+0.0i)</code> ⇒ #f
+<code class="example-code">(real? 1.0-0.0i)</code> ⇒ #f</pre>
 
 <div class="feature">
 <span class="category">(srfi 278)<br>procedure</span>
@@ -430,6 +437,76 @@ SPDX-License-Identifier: MIT
   The ones defined in this SRFI are backwards-compatible with the
   versions described in the
   <span class="report-name">R<sup>7</sup>RS</span>.
+</p>
+</div>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#rationalize" id="rationalize"
+                        >rationalize</a> <var>x</var>
+                                         <var>y</var>)</code><br>
+<code class="signature">(<a href="#rationalize" id="rationalize"
+                        >rationalize</a> <var>x</var>
+                                         <var>delta-lower</var>
+                                         <var>delta-upper</var>
+                                         [<var>lower-inclusive?</var>
+                                          <var>upper-inclusive?</var>])</code><br>
+</div>
+
+<p>It is an error if <var>delta-lower</var> and
+   <var>delta-upper</var> are not both reals.
+   It is an error if <var>x</var> is not finite.
+   It is an error if the interval described by the arguments is empty;
+   this can only happen when
+   <var>delta-lower</var> and <var>delta-upper</var> are both zero,
+   and both bounds are not inclusive.
+</p>
+
+<p>
+  This procedure is like <code>rationalize</code> in the
+  <span class="report-name">R<sup>7</sup>RS</span>. When
+  <var>delta-lower</var> and <var>delta-upper</var> is specified,
+  then the simplest rational between <var>x</var>&minus;|<var>delta-lower</var>|
+  and <var>x</var>+|<var>delta-higher</var>| is returned.
+</p>
+
+<p>
+  When <var>lower-inclusive?</var> is true, the lower bound of the range
+  is inclusive; otherwise, it is exclusive.
+  When <var>upper-inclusive?</var> is true, the upper bound of the range
+  is inclusive; otherwise, it is exclusive. For example,
+  <code>(rationalize <var>x</var> -1 +1 #f #t)</code> covers the range
+  (<var>x</var>-1,<var>x</var>+1].
+</p>
+<div class="boxed">
+<p>
+  <span class="boxed-tag">Rationale</span>: This version of
+  <code>rationalize</code> allows for finer control over the bounds,
+  which is particularly important when converting floating-point
+  numbers into rationals. For example, one can rationalize a floating
+  point number <var>f</var>
+  (that is not a power of two) by considering the numbers
+  around it that would round to it. Let <var>ε</var> be the quantum of
+  <var>f</var>. In the default round-to-even mode,
+  the interval of rationals that round to <var>f</var> is (<var>f</var>-<var>ε</var>/2,<var>f</var>+<var>ε</var>/2)
+  when the mantissa is odd, and
+  [<var>f</var>-<var>ε</var>/2,<var>f</var>+<var>ε</var>/2] when the
+  mantissa is even. When <var>f</var> is a normal power of two, then the
+  range is [<var>f</var>-<var>ε</var>/4,<var>f</var>+<var>ε</var>/2],
+  because the left interval is in a different binade.
+  When <var>f</var> is a normalized non-power of two in round towards
+  zero mode, then the interval is [<var>f</var>,<var>f</var>+<var>ε</var>).
+</p>
+
+<p>A procedure called
+   <a href="https://practical-scheme.net/gauche/man/gauche-refe/Numbers.html#index-real_002d_003erational"><code>real-&gt;rational</code></a>
+   appears in Gauche, with similar behavior to this procedure.
+</p>
+
+<p>
+  Implementations are encouraged to implement this behavior as an
+  extension to the procedure in <code>(scheme base)</code> because it
+  is backwards compatible.
 </p>
 </div>
 
@@ -492,7 +569,10 @@ The value of <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>log</mi><mo>⁡</mo><mi>z</mi><mo>=</mo><mi>log</mi><mo>⁡</mo><mrow><mo>|</mo><mi>z</mi><mo>|</mo></mrow><mo>+</mo><mrow><mo>(</mo><mi>angle</mi><mo>⁡</mo><mi>z</mi><mo>)</mo></mrow><mo>⁢</mo><mi>i</mi></mrow></math><p>
 where <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>angle</mi><mo>⁡</mo><mi>z</mi></mrow></math> is the angle of <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>z</mi><mo>=</mo><mi>a</mi><mo>⁢</mo><msup><mi>e</mi><mrow><mi>i</mi><mo>⁢</mo><mi>θ</mi></mrow></msup></mrow></math> specified as </p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>angle</mi><mo>⁡</mo><mi>z</mi><mo>=</mo><mi>b</mi><mo>+</mo><mn>2</mn><mo>⁢</mo><mi>i</mi><mo>⁢</mo><mi>n</mi></mrow></math><p>
-with <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>n</mi></math> chosen such that <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>−</mo><mo>⁢</mo><mi>π</mi><mo>≤</mo><mo>angle</mo><mo>⁡</mo><mo>z</mo><mo>≤</mo><mi>π</mi></mrow></math>.</p>
+with <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>n</mi></math> chosen such that <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>−</mo><mo>⁢</mo><mi>π</mi><mo>≤</mo><mo>angle</mo><mo>⁡</mo><mo>z</mo><mo>≤</mo><mi>π</mi></mrow></math>.
+When zero is unsigned, the principal expression for angle is
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>−</mo><mo>⁢</mo><mi>π</mi><mo>&lt;</mo><mo>angle</mo><mo>⁡</mo><mo>z</mo><mo>≤</mo><mi>π</mi></mrow></math>.
+</p>
 
 <p>The principal expression for square root is <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><msqrt><mi>z</mi></msqrt><mo>=</mo><msup><mi>z</mi><mrow><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msup></math>.</p>
 
@@ -596,7 +676,8 @@ go according to the following formulæ:</p>
 <h2 id="implementation">Implementation</h2>
 
 <p>
-  A sample implementation is available in
+  A sample <span class="report-name">R<sup>7</sup>RS</span>
+  implementation is available in
   the <a href="https://github.com/scheme-requests-for-implementation/srfi-278">SRFI
   repository</a>. It depends on complex numbers, inexact numbers, <a
   href="https://srfi.schemers.org/srfi-144/">SRFI 144</a>, inexact

@@ -119,20 +119,24 @@
   (else (define csqrt sqrt)))
 
 (define (sinh z)
-  (if (real? z)
-      (flsinh (flonum z))
+  (cond
+    ((eqv? z 0) 0)
+    ((real? z) (flsinh (flonum z)))
+    (else
       (make-rectangular (* (flsinh (real-part z))
                            (cos (imag-part z)))
                         (* (flcosh (real-part z))
-                           (sin (imag-part z))))))
+                           (sin (imag-part z)))))))
 
 (define (cosh z)
-  (if (real? z)
-      (flcosh (flonum z))
+  (cond
+    ((eqv? z 0) 1)
+    ((real? z) (flcosh (flonum z)))
+    (else
       (let ((x (flonum (real-part z)))
             (y (imag-part z)))
         (make-rectangular (* (flcosh x) (cos y))
-                          (* (flsinh x) (sin y))))))
+                          (* (flsinh x) (sin y)))))))
 
 (cond-expand
   ((or (library (srfi 144))
@@ -171,27 +175,30 @@
 (define asinh
   (if signed-imaginary-zero?
       (lambda (z)
-        (if (real? z)
-            (flasinh (flonum z))
-            (*-i (casin (*+i z)))))
+        (cond
+          ((eqv? z 0) 0)
+          ((real? z) (flasinh (flonum z)))
+          (else (*-i (casin (*+i z))))))
       (lambda (z)
-        (let ((w (* -i (casin (* +i z))))
-              (x (real-part z))
-              (y (imag-part z)))
-          (cond
-            ((positive? y)                        ; First or second
-             (make-rectangular (* (sign x)        ; quadrant. The CCW rule
-                                  (real-part w))  ; was applied, meaning
-                               (imag-part w)))    ; that we should flip
-                                                  ; the sign.
-
-            ((zero? y) w)
-            (else                                 ; Third or fourth
-             (make-rectangular (* (sign x)        ; quadrant. We might
-                                  -1              ; need to flip the sign,
-                                  (real-part w))  ; but in the opposite
-                               (imag-part w)))    ; scenarios.
-          )))))
+        (if (eqv? z 0)
+            0
+            (let ((w (* -i (casin (* +i z))))
+                  (x (real-part z))
+                  (y (imag-part z)))
+              (cond
+                ((positive? y)                        ; First or second
+                 (make-rectangular (* (sign x)        ; quadrant. The CCW rule
+                                      (real-part w))  ; was applied, meaning
+                                   (imag-part w)))    ; that we should flip
+                                                      ; the sign.
+    
+                ((zero? y) w)
+                (else                                 ; Third or fourth
+                 (make-rectangular (* (sign x)        ; quadrant. We might
+                                      -1              ; need to flip the sign,
+                                      (real-part w))  ; but in the opposite
+                                   (imag-part w)))    ; scenarios.
+              ))))))
 
 (define (%acosh z)
   (let* ((x (real-part z))
@@ -263,6 +270,7 @@
 
 (define (atanh z)
   (cond
+    ((eqv? z 0) 0)
     ((and (real? z) (eqv? (abs z) 1))
      (error 'atanh "atanh has a singularity at 1 and -1"))
     ((and (real? z) (< -1.0 z 1.0))
@@ -280,6 +288,7 @@
          (y (imag-part z))
          (ax (abs x)))
     (cond
+      ((eqv? z 0) 0)
       ((> ax tanh-overflow-treshold)
        (if (real? z)
            (* 1.0 (sign x))
@@ -321,3 +330,74 @@
     ((or (infinite? x) (nan? x)) x)
     ((negative? x) (truncate (- x 1/2)))
     (else (truncate (+ x 1/2)))))
+
+(define (rationalize* lower upper lower-inclusive? upper-inclusive?)
+  (cond
+    ((and (integer? lower) lower-inclusive?)
+     lower)
+    ((and (integer? upper) upper-inclusive?)
+     upper)
+    (else
+      (let ((candidate (ceiling lower)))
+        (if (<= candidate upper)         ; integer in interval?
+            candidate                    ; return integer. Note that
+                                         ; when the upper bound is +inf.0,
+                                         ; the code below never runs.
+            ;; Refine guess.
+            (let* ((integer-part (floor lower))
+                   (new-lower (/ (- upper integer-part)))
+                   (new-upper (if (integer? lower)
+                                  +inf.0 ; swap to inexact infinity
+                                  (/ (- lower integer-part)))))
+              (+ integer-part
+                 (/ (rationalize* new-lower
+                                  new-upper
+                                  upper-inclusive?
+                                  lower-inclusive?)))))))))
+
+(define (rationalize-easy-cases lower
+                                upper
+                                lower-inclusive?
+                                upper-inclusive?)
+  (cond
+    ((< lower 0 upper) 0)
+    ((and lower-inclusive? (zero? lower)) 0)
+    ((and upper-inclusive? (zero? upper)) 0)
+    ((= lower upper) lower)
+    ((not (positive? upper))
+     (- (rationalize* (- upper)
+                      (- lower)
+                      lower-inclusive?
+                      upper-inclusive?)))
+    (else
+     (rationalize* lower
+                   upper
+                   lower-inclusive?
+                   upper-inclusive?))))
+
+(define rationalize
+  (case-lambda
+    ((x y) (rationalize x y y #t #t))
+    ((x dlower dupper) (rationalize x dlower dupper #t #t))
+    ((x dlower dupper lower-inclusive? upper-inclusive?)
+     (unless (and (real? x) (finite? x))
+       (error "x must be a real, finite number" x))
+     (unless (real? dlower)
+       (error "delta must be a real number" dlower))
+     (unless (real? dupper)
+       (error "upper delta must be a real number" dupper))
+     (when (= dlower dupper 0)
+       (unless (and lower-inclusive? upper-inclusive?)
+         (error "interval is empty" x dlower dupper
+                                    lower-inclusive?
+                                    upper-inclusive?)))
+     ;; Don't check for boolean
+     (let* ((lower (- x (abs dlower)))
+            (upper (+ x (abs dupper)))
+            (value (rationalize-easy-cases (exact lower)
+                                           (exact upper)
+                                           lower-inclusive?
+                                           upper-inclusive?)))
+       (if (or (inexact? x) (inexact? dlower) (inexact? dupper))
+           (inexact value)
+           value)))))

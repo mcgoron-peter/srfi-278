@@ -1,7 +1,8 @@
 ;;; SPDX-FileCopyrightText: 2026 Peter McGoron
 ;;; SPDX-License-Identifier: MIT
 
-(import (except (scheme base) exact-integer? real? integer? rational?)
+(import (except (scheme base) exact-integer? real? integer? rational?
+                              rationalize)
         (prefix (only (scheme base) real?) r5rs:)
         (scheme write)
         (scheme process-context)
@@ -106,6 +107,14 @@
   (test-assert (not (exact-integer? 0.0)))
   (test-assert (not (exact-integer? "0.0"))))
 
+(test-group "rationalize"
+  (test-eqv 0 (rationalize 1 1))
+  (test-eqv 53/10 (rationalize 5967269506265907/1125899906842624
+                               (expt 2 -51)
+                               (expt 2 -51)
+                               #f
+                               #f)))
+
 (test-group "nan?"
   (test-assert (nan? +nan.0))
   (test-assert (not (nan? +inf.0)))
@@ -145,7 +154,7 @@
 
 (test-group "sinh"
   ;; TODO: Better way to test?
-  (test-assert (zero? (sinh 0)))
+  (test-eqv 0 (sinh 0))
   (test-eqv 0.0 (sinh 0.0))
   (test-eqv -0.0 (sinh -0.0))
   (test-eqv +inf.0 (sinh +inf.0))
@@ -155,7 +164,7 @@
                     1e-6))
 
 (test-group "cosh"
-  (test-eqv 1.0 (cosh 0))
+  (test-eqv 1 (cosh 0))
   (test-eqv +inf.0 (cosh +inf.0))
   (test-eqv +inf.0 (cosh -inf.0))
   (test-approximate (/ (+ (exp 1) (exp -1)) 2)
@@ -163,6 +172,7 @@
                     1e-6))
 
 (test-group "tanh"
+  (test-eqv 0 (tanh 0))
   (test-eqv "(tanh 0.0)" 0.0 (tanh 0.0))
   (test-eqv "(tanh -0.0)" -0.0 (tanh -0.0))
   (test-eqv "(tanh +inf.0)" 1.0 (tanh +inf.0))
@@ -199,6 +209,7 @@
 (test-group "atanh"
   ;; In Kahan’s version for unsigned zero, the returned value is the
   ;; value that is approached counter-clockwise. 
+  (test-eqv 0 (atanh 0))
   (test-group "(atanh 1.0+0.0i)"
     (test-real-and-imag (if signed-imaginary-zero?
                             +inf.0+.7853981633974483i
@@ -246,6 +257,7 @@
                         (atanh 5+10i))))
 
 (test-group "acosh"
+  (test-eqv 0 (acosh 1))
   (test-group "(acosh 1.0+0.0i)"
     (test-real-and-imag 0.0+0.0i
                         (acosh 1.0+0.0i)))
@@ -278,18 +290,19 @@
   (log (+ z (sqrt (+ 1 (square z))))))
 
 (test-group "asinh"
+  (test-eqv 0 (asinh 0))
   (test-group "(asinh 0.0+2.0i)"
     (test-real-and-imag 1.3169578969248166+1.5707963267948966i
                         (asinh 0.0+2.0i)))
   (test-group "(asinh -0.0+2.0i)"
-    (let ((input (make-rectangular -0.0 2.0))) ; CHICKEN 6 reader bug
+    (let ((input (make-rectangular -0.0 2.0)))
       (test-real-and-imag -1.3169578969248166+1.5707963267948966i
                           (asinh input))))
   (test-group "(asinh 0.0-2.0i)"
     (test-real-and-imag 1.3169578969248166-1.5707963267948966i
                         (asinh 0.0-2.0i)))
   (test-group "(asinh -0.0-2.0i)"
-    (let ((input (make-rectangular -0.0 -2.0))) ; CHICKEN 6 reader bug
+    (let ((input (make-rectangular -0.0 -2.0)))
       (test-real-and-imag -1.3169578969248166-1.5707963267948966i
                           (asinh input))))
   (test-group "(asinh +i)"
