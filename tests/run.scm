@@ -65,6 +65,11 @@
 (define exact-complex-numbers?
   (exact? 1+2i))
 
+(define mixed-exactness-complex-numbers?
+  (let ((z 1+2.0i))
+    (and (exact? (real-part z))
+         (inexact? (imag-part z)))))
+
 (define needs-strict-definition?
   (cond
     ((not (r5rs:real? 0.0+0.0i)) #f)    ; Already stricter definition
@@ -248,7 +253,12 @@
                     (naive-atanh 0.99)
                     (atanh 0.99)
                     1e-6)
-  (test-assert "(atanh 0)" (zero? (atanh 0)))
+  (let ((w (atanh 0-1.0i)))
+    (skip-unless mixed-exactness-complex-numbers?
+      (test-eqv 0 (real-part w)))
+    (test-approximate -.7853981633974483
+                      (imag-part w)
+                      1e-6))
   (test-group "(atanh 2.0)"
     (test-real-and-imag (naive-atanh 2.0)
                         (atanh 2.0)))

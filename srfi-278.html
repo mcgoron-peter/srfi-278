@@ -147,7 +147,7 @@ SPDX-License-Identifier: MIT
   <li>I am unsure whether the requirements on the inverse hyperbolic functions
       are sufficient to capture the behavior shown in the examples.
   </li>
-  <li>Incoroporate Gambit’s test suite.</li>
+  <li>Incoroporate some tests from Gambit’s test suite.</li>
   <li>More tests for the <a href="#rationalize"><code>rationalize</code></a>
       procedure.
   </li>
@@ -186,9 +186,10 @@ SPDX-License-Identifier: MIT
   href="#conjugate"><code>conjugate</code></a> procedure and the (inverse)
   hyperbolic functions. The (inverse) hyperbolic functions are commonly
   provided on Schemes that provide complex arithmetic (for example,
-  Gambit, Chez, Racket, Gauche, and Guile) because those implementations
-  are required to implement complex (inverse) trigonometric functions,
-  which are closely connected to complex (inverse) hyperbolic functions.
+  Gambit, Chez, Racket, Gauche, and Guile) because
+  the implementation of complex inverse trigonometric functions is
+  closely linked to the implementation of complex inverse hyperbolic
+  functions.
 </p>
 
 <p>
@@ -206,7 +207,8 @@ SPDX-License-Identifier: MIT
   zero to the number system. That means that <code>1.0+0.0i</code>,
   <code>1.0-0.0i</code>, and <code>1.0</code> may be distinct. The
   <span class="report-name">R<sup>5</sup>RS</span> definition says each
-  of these is <code>real?</code>: this SRFI would say that only
+  of these is <code>real?</code>: this SRFI and the
+  <span class="report-name">R<sup>6</sup>RS</span> say that only
   <code>1.0</code> is <code>real?</code>, and the other two are not.
 </p>
 
@@ -245,13 +247,14 @@ SPDX-License-Identifier: MIT
   <span class="report-name">R<sup>6</sup>RS</span> semantics. These
   procedures are likely to be added to the
 <span class="report-name">R<sup>7</sup>RS</span>-Large prefixed with
-  <code>strictly-</code>. Hopefully a future standard will keep the
+  <code>strictly-</code>. Hopefully a future standard will change the
+  numeric tower to have the
   <span class="report-name">R<sup>6</sup>RS</span> semantics.
 </p>
 
 <p> Procedures
   like <span class="report-name">R<sup>6</sup>RS</span>’s
-  <code>div-and-mod</code> are <em>not</em> supplied. 
+  <code>div-and-mod</code> are not supplied. 
   Some proposed extensions to standard
   procedures, such as
   <a href="https://codeberg.org/scheme/r7rs/issues/193"
@@ -390,6 +393,18 @@ SPDX-License-Identifier: MIT
 <code class="example-code">(real? 1.0+0.0i)</code> ⇒ #f
 <code class="example-code">(real? 1.0-0.0i)</code> ⇒ #f</pre>
 
+<div class="boxed">
+<p>
+  <span class="boxed-tag">Note</span>: This procedure, along
+  with the <a href="#rationalp"><code>rational?</code></a> and
+  <a href="#integerp"><code>integer?</code></a> defined in this
+  SRFI, are <em>not</em> compatible with the intended semantics of
+  the identifiers exported from the
+  <span class="report-name">R<sup>7</sup>RS</span>. They are lifted
+  from the <span class="report-name">R<sup>6</sup>RS</span>.
+</p>
+</div>
+
 <div class="feature">
 <span class="category">(srfi 278)<br>procedure</span>
 <code class="signature">(<a href="#rationalp" id="rationalp"
@@ -431,7 +446,7 @@ SPDX-License-Identifier: MIT
 
 <div class="boxed">
 <p>
-  <span class="boxed-tag">Rationale</span>: Implementations are
+  <span class="boxed-tag">Note</span>: Implementations are
   encouraged to replace the versions of these procedures in
   <code>(scheme base)</code> with the one defined in this SRFI.
   The ones defined in this SRFI are backwards-compatible with the
@@ -504,9 +519,12 @@ SPDX-License-Identifier: MIT
 </p>
 
 <p>
-  Implementations are encouraged to implement this behavior as an
-  extension to the procedure in <code>(scheme base)</code> because it
-  is backwards compatible.
+  Implementations are
+  encouraged to replace <code>rationalize</code> in
+  <code>(scheme base)</code> with the one specified in this SRFI.
+  The version in this SRFI are backwards-compatible with the
+  version described in the
+  <span class="report-name">R<sup>7</sup>RS</span>.
 </p>
 </div>
 
@@ -525,10 +543,10 @@ SPDX-License-Identifier: MIT
 </p>
 
 <pre
-><code class="example-code">(sinh 0)</code> ⇒ 0.0
+><code class="example-code">(sinh 0)</code> ⇒ 0
 <code class="example-code">(sinh +inf.0)</code> ⇒ +inf.0
 <code class="example-code">(sinh -inf.0)</code> ⇒ -inf.0
-<code class="example-code">(cosh 0)</code> ⇒ 1.0
+<code class="example-code">(cosh 0)</code> ⇒ 1
 <code class="example-code">(cosh +inf.0)</code> ⇒ +inf.0
 <code class="example-code">(cosh -inf.0)</code> ⇒ +inf.0
 <code class="example-code">(sinh +1.0i)</code> ⇒ +.8414709848078965i</pre>
@@ -592,12 +610,13 @@ go according to the following formulæ:</p>
 </p>
 
 <pre
-><code class="example-code">(atanh 1.0+0.0i)</code> ⇒ -inf.0+.7853981633974483i
-<code class="example-code">(atanh 1.0-0.0i)</code> ⇒ -inf.0-.7853981633974483i
-<code class="example-code">(atanh -1.0+0.0i)</code> ⇒ +inf.0+.7853981633974483i
-<code class="example-code">(atanh -1.0-0.0i)</code> ⇒ +inf.0-.7853981633974483i
+><code class="example-code">(atanh 1.0+0.0i)</code> ⇒ +inf.0+.7853981633974483i
+<code class="example-code">(atanh 1.0-0.0i)</code> ⇒ +inf.0-.7853981633974483i
+<code class="example-code">(atanh -1.0+0.0i)</code> ⇒ -inf.0+.7853981633974483i
+<code class="example-code">(atanh -1.0-0.0i)</code> ⇒ -inf.0-.7853981633974483i
 <code class="example-code">(atanh 0.0+1.0i)</code> ⇒ 0.0+0.7853981633974483i
 <code class="example-code">(atanh 1)</code> ⇒ <em>error</em>
+<code class="example-code">(atanh -1)</code> ⇒ <em>error</em>
 <code class="example-code">(atanh 0.0-1.0i)</code> ⇒ 0.0-.7853981633974483i
 <code class="example-code">(acosh 0.0+0.0i)</code> ⇒ 0.+1.5707963267948966i
 <code class="example-code">(acosh 0.0-0.0i)</code> ⇒ 0.-1.5707963267948966i
@@ -605,6 +624,15 @@ go according to the following formulæ:</p>
 <code class="example-code">(acosh 1.0-0.0i)</code> ⇒ 0.-3.141592653589793i
 <code class="example-code">(asinh 0.0+2.0i)</code> ⇒ 1.3169578969248166+1.5707963267948966i
 <code class="example-code">(asinh -0.0+2.0i)</code> ⇒ -1.3169578969248166+1.5707963267948966i</pre>
+
+<p>
+  If an implementation allows mixed exactness complex numbers and an
+  implementation can determine that the imaginary or real part of a
+  result is exact, then the implementation <strong>should</strong>
+  return a mixed-exactness result:
+<pre
+><code class="example-code">(atanh 0-1.0i)</code> ⇒ -.7853981633974483i
+</p>
 
 <h3 id="mixed-arithmetic"><a href="#mixed-arithmetic">&para;</a> Provisions for mixed arithmetic</h3>
 
@@ -696,8 +724,9 @@ go according to the following formulæ:</p>
 
 <h2 id="acknowledgements">Acknowledgements</h2>
 
-<p>I thank Bradley Lucier and the Gambit project for writing high-quality
-   implementations of the (inverse) hyperbolic functions. I have used
+<p>I thank Bradley Lucier for writing high-quality
+   implementations of the (inverse) hyperbolic functions for Gambit,
+   and also for his feedback on drafts of this SRFI. I have used
    Gambit to check that my code outputs the correct values.
 </p>
 

@@ -257,10 +257,13 @@
                               (sign y)))))
       (else
        (let ((y^2 (square y)))
-         (make-rectangular (/ (fllog1+ (/ (* 4.0 x)
-                                          (+ (square (- 1.0 x))
-                                             y^2)))
-                              4.0)
+         (make-rectangular (cond
+                             ((eqv? x 0) 0)
+                             (else
+                              (/ (fllog1+ (/ (* 4.0 x)
+                                             (+ (square (- 1.0 x))
+                                                y^2)))
+                                 4.0)))
                            (/ (angle (+ (* (- 1.0 x) (+ 1.0 x))
                                         (- y^2)
                                         (make-rectangular
