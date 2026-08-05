@@ -2,16 +2,19 @@
 ;;; SPDX-License-Identifier: MIT
 
 (define-library (srfi 278)
-  (import (except (scheme base) exact-integer?)
+  (import (except (scheme base) exact-integer? real? rational? integer?
+                                rationalize)
+          (prefix (only (scheme base) real? rational? integer?)
+                  r5rs:)
           (scheme write)
           (rename (scheme inexact)
                   (nan? r7rs:nan?))
-          (scheme complex))
+          (scheme complex)
+          (scheme case-lambda))
   (export nan? exact-integer?
-          strictly-real? strictly-rational? strictly-integer?
+          imaginary? real? rational? integer?
           sinh cosh tanh asinh acosh atanh
-          conjugate
-          round-away)
+          conjugate rationalize round-away)
   (cond-expand
     ((library (srfi 276))
      (import (rename (only (srfi 276)
@@ -27,30 +30,46 @@
                      (:least fl-least)
                      (:epsilon fl-epsilon)
                      (:pi/2 fl-pi/2)
+                     (:pi/4 fl-pi/4)
                      (:make-flonum make-flonum)
                      (:exponent flexponent)
                      (:asinh flasinh)
+                     (:sinh flsinh)
+                     (:cosh flcosh)
                      (:atanh flatanh)
                      (:log1+ fllog1+))))
     ((library (srfi 144))
      (import (only (srfi 144)
                    flonum
                    fl-greatest
-                   fl-least
                    fl-epsilon
+                   fladjacent
                    fl-pi/2
+                   fl-pi/4
                    make-flonum
                    flexponent
                    flasinh
+                   flsinh
+                   flcosh
                    flatanh
-                   fllog1+)))
+                   fllog1+))
+     (begin (define fl-least-normal
+              (- 1.0 (fladjacent 1.0 0.0)))))
     ;; If you don't have SRFI 144, you have to define the following
     ;; here:
     ;;
+    ;; flonum (which is probably just `inexact`)
     ;; fl-greatest
+    ;; fl-least-normal (not fl-least; the smallest normal number)
+    ;; fl-epsilon
     ;; fl-pi/2
+    ;; fl-pi/4
+    ;; make-flonum (aka ldexp)
+    ;; flexponent (aka logb)
     ;; fllog1+
     ;; flasinh
+    ;; flsinh
+    ;; flcosh
     ;; flatanh
     ;;
     ;; If your inexact real type is a IEEE 754 format number, then you
