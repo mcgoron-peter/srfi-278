@@ -26,7 +26,7 @@
              (eqv? 0 (imag-part obj))))
       r5rs:real?))
 
-(define rational? 
+(define rational?
   (if needs-strict-definition?
       (lambda (obj)
         (and (real? obj) (r5rs:real? obj)))
@@ -191,7 +191,7 @@
                                       (real-part w))  ; was applied, meaning
                                    (imag-part w)))    ; that we should flip
                                                       ; the sign.
-    
+
                 ((zero? y) w)
                 (else                                 ; Third or fourth
                  (make-rectangular (* (sign x)        ; quadrant. We might

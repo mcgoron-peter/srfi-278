@@ -13,7 +13,7 @@
 (cond-expand
   ((library (srfi 64))
    (import (srfi 64)))
-  (chicken-6 
+  (chicken-6
    (import (rename (test)
                    (test %test))))
   (else (error "need a test suite")))
@@ -213,7 +213,7 @@
 
 (test-group "atanh"
   ;; In Kahan’s version for unsigned zero, the returned value is the
-  ;; value that is approached counter-clockwise. 
+  ;; value that is approached counter-clockwise.
   (test-eqv 0 (atanh 0))
   (test-group "(atanh 1.0+0.0i)"
     (test-real-and-imag (if signed-imaginary-zero?
