@@ -81,11 +81,12 @@
 
 (test-group "real?"
   (test-assert (real? 1.0))
-  (test-assert (real? 1.0+0i))
+  (skip-unless (not (memq 'chicken (features)))
+               (test-assert (real? 1.0+0i)))
   (skip-unless needs-strict-definition?
-    (test-assert (not (real? 1.0+0.0i))))
+               (test-assert (not (real? 1.0+0.0i))))
   (skip-unless needs-strict-definition?
-    (test-assert (not (real? 1.0-0.0i)))))
+               (test-assert (not (real? 1.0-0.0i)))))
 
 (test-group "rational?"
   (test-assert (rational? 1/2))
