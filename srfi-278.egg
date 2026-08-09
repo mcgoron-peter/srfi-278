@@ -1,5 +1,5 @@
 ((author "Peter McGoron")
- (version "0.2.0")
+ (version "0.2.1")
  (synopsis "Supplemental Numerics (includes complex hyperbolic functions)")
  (category math)
  (license "MIT")

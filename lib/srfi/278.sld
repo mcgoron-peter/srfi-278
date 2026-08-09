@@ -38,7 +38,7 @@
                      (:cosh flcosh)
                      (:atanh flatanh)
                      (:log1+ fllog1+))))
-    ((library (srfi 144))
+    ((or chicken (library (srfi 144)))  ; TODO: fix CHICKEN here
      (import (only (srfi 144)
                    flonum
                    fl-greatest
