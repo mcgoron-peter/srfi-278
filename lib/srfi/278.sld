@@ -21,6 +21,8 @@
                    flonum
                    fl-greatest
                    fl-epsilon
+                   fl-least
+                   flnormalized?
                    fladjacent
                    fl-pi/2
                    fl-pi/4
@@ -33,7 +35,7 @@
                    fllog1+))
      (begin
        (define fl-least-normal
-         (do ((candidate fl-least (fl* 2.0 candidate)))
+         (do ((candidate fl-least (* 2.0 candidate)))
              ((flnormalized? candidate) candidate)))))
     ;; If you don't have SRFI 144, you have to define the following
     ;; here:
