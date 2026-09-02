@@ -42,6 +42,19 @@
 (define (nan? obj)
   (and (number? obj) (r7rs:nan? obj)))
 
+(define (not-nan? obj)
+  (not (nan? obj)))
+(define (not-negative? x)
+  (not (negative? x)))
+(define (not-positive? x)
+  (not (positive? x)))
+(define (not-zero? x)
+  (not (zero? x)))
+(define (not-finite? x)
+  (not (finite? x)))
+(define (not-infinite? x)
+  (not (infinite? x)))
+
 (define (exact-integer? obj)
   (and (integer? obj) (exact? obj)))
 

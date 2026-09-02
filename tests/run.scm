@@ -126,6 +126,20 @@
   (test-assert (not (nan? +inf.0)))
   (test-assert (not (nan? "NaN"))))
 
+(test-group "not wrappers"
+  (test-assert (not-nan? +inf.0))
+  (test-assert (not (not-nan? +nan.0)))
+  (test-assert (not-zero? 1))
+  (test-assert (not (not-zero? 0)))
+  (test-assert (not-positive? -1))
+  (test-assert (not (not-positive? 1)))
+  (test-assert (not-negative? 1))
+  (test-assert (not (not-negative? -1)))
+  (test-assert (not-finite? +inf.0))
+  (test-assert (not (not-finite? 0)))
+  (test-assert (not-infinite? 0))
+  (test-assert (not (not-infinite? +inf.0))))
+
 (test-group "round-away"
   (test-eqv +inf.0 (round-away +inf.0))
   (test-eqv -inf.0 (round-away -inf.0))

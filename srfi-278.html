@@ -304,6 +304,12 @@ SPDX-License-Identifier: MIT
   <a href="#exact-integerp"><code>exact-integer?</code></a>
   <a href="#rationalize"><code>rationalize</code></a>
   <a href="#nanp"><code>nan?</code></a>
+  <a href="#not-nanp"><code>not-nan?</code></a>
+  <a href="#not-negativep"><code>not-negative?</code></a>
+  <a href="#not-positivep"><code>not-positive?</code></a>
+  <a href="#not-zerop"><code>not-zero?</code></a>
+  <a href="#not-finitep"><code>not-finite?</code></a>
+  <a href="#not-infinitep"><code>not-infinite?</code></a>
   <a href="#sinh"><code>sinh</code></a>
   <a href="#cosh"><code>cosh</code></a>
   <a href="#tanh"><code>tanh</code></a>
@@ -455,6 +461,36 @@ SPDX-License-Identifier: MIT
   <span class="report-name">R<sup>7</sup>RS</span>.
 </p>
 </div>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#not-nanp" id="not-nanp"
+                        >not-nan?</a> <var>obj</var>)</code><br>
+<code class="signature">(<a href="#not-negativep" id="not-negativep"
+                        >not-negative?</a> <var>x</var>)</code><br>
+<code class="signature">(<a href="#not-positivep" id="not-positivep"
+                        >not-positive?</a> <var>x</var>)</code><br>
+<code class="signature">(<a href="#not-zerop" id="not-zerop"
+                        >not-zero?</a> <var>z</var>)</code><br>
+<code class="signature">(<a href="#not-finitep" id="not-finitep"
+                        >not-finite?</a> <var>z</var>)</code><br>
+<code class="signature">(<a href="#not-infinitep" id="not-infinitep"
+                        >not-infinite?</a> <var>z</var>)</code><br>
+</div>
+
+<p>
+  These procedures are <code>not</code> wrapped around the original
+  procedures, either from the Reports or (in the case of
+  <code>not-nan?</code>, the definitions in this SRFI.
+</p>
+
+<p>
+  For example, <code>not-negative?</code> could be defined as
+</p>
+
+<pre
+>(define (not-negative? z)
+  (not (negative? z)))</pre>
 
 <div class="feature">
 <span class="category">(srfi 278)<br>procedure</span>
