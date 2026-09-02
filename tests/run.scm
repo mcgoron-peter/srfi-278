@@ -118,6 +118,19 @@
 
 (test-group "rationalize"
   (test-eqv 0 (rationalize 1 1))
+  ;; From the Gauche test suite
+  (test-eqv 1/3 (rationalize 3/10 1/10 1/10 #f #f))
+  (test-eqv 2/3 (rationalize 24/35 4/35 4/35 #f #f))
+  (test-eqv 1 (rationalize 1 1/2))
+  (test-eqv 2 (rationalize 5 3))
+  (test-eqv 0 (rationalize 1 3))
+  (test-eqv -1 (rationalize -1 1/2))
+  (test-eqv -2 (rationalize -5 3))
+  (test-eqv 0 (rationalize -1 3))
+  (test-assert (exact? (rationalize 1/2 1/3)))
+  (test-assert (inexact? (rationalize 0.5 1/3)))
+  (test-assert (inexact? (rationalize 1/2 0.1)))
+  (test-assert (inexact? (rationalize 0.5 0.1)))
   (test-eqv 53/10 (rationalize 5967269506265907/1125899906842624
                                (expt 2 -51)
                                (expt 2 -51)
