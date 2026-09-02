@@ -196,7 +196,17 @@ SPDX-License-Identifier: MIT
 <p>
   The procedure <a href="#round-away"><code>round-away</code></a>
   has been added to correspond to the roundTiesToAway rounding mode in
-  IEEE 754-2019.
+  IEEE 754-2019. In addition, <a href="#unorderedp"><code>unordered?</code></a>
+  and <a href="#orderedp"><code>ordered?</code></a> have been added to
+  determine if two arguments have a sensible order relationship.
+  The procedures
+  <a href="#nonpositivep"><code>nonpositive?</code></a>,
+  <a href="#nonnegativep"><code>nonnegative?</code></a>,
+  <a href="#nonnegativep"><code>nonnegative?</code></a>
+  are procedures that are negations of the corresponding procedures without
+  <code>non</code>, but will still always return <code>#f</code> when passed
+  a NaN. Finally, the procedure <a href="#sign-negativep"><code>sign-negative?</code></a>
+  is useful for determining the sign of zeroes and NaNs.
 </p>
 
 <p>
@@ -304,12 +314,13 @@ SPDX-License-Identifier: MIT
   <a href="#exact-integerp"><code>exact-integer?</code></a>
   <a href="#rationalize"><code>rationalize</code></a>
   <a href="#nanp"><code>nan?</code></a>
-  <a href="#not-nanp"><code>not-nan?</code></a>
-  <a href="#not-negativep"><code>not-negative?</code></a>
-  <a href="#not-positivep"><code>not-positive?</code></a>
-  <a href="#not-zerop"><code>not-zero?</code></a>
-  <a href="#not-finitep"><code>not-finite?</code></a>
-  <a href="#not-infinitep"><code>not-infinite?</code></a>
+  <a href="#orderedp"><code>ordered?</code></a>
+  <a href="#unorderedp"><code>unordered?</code></a>
+  <a href="#neqp"><code>!=</code></a>
+  <a href="#sign-negativep"><code>sign-negative?</code></a>
+  <a href="#nonnegativep"><code>nonnegative?</code></a>
+  <a href="#nonpositivep"><code>nonpositive?</code></a>
+  <a href="#nonzerop"><code>nonzero?</code></a>
   <a href="#sinh"><code>sinh</code></a>
   <a href="#cosh"><code>cosh</code></a>
   <a href="#tanh"><code>tanh</code></a>
@@ -464,33 +475,81 @@ SPDX-License-Identifier: MIT
 
 <div class="feature">
 <span class="category">(srfi 278)<br>procedure</span>
-<code class="signature">(<a href="#not-nanp" id="not-nanp"
-                        >not-nan?</a> <var>obj</var>)</code><br>
-<code class="signature">(<a href="#not-negativep" id="not-negativep"
-                        >not-negative?</a> <var>x</var>)</code><br>
-<code class="signature">(<a href="#not-positivep" id="not-positivep"
-                        >not-positive?</a> <var>x</var>)</code><br>
-<code class="signature">(<a href="#not-zerop" id="not-zerop"
-                        >not-zero?</a> <var>z</var>)</code><br>
-<code class="signature">(<a href="#not-finitep" id="not-finitep"
-                        >not-finite?</a> <var>z</var>)</code><br>
-<code class="signature">(<a href="#not-infinitep" id="not-infinitep"
-                        >not-infinite?</a> <var>z</var>)</code><br>
+<code class="signature">(<a href="#orderedp" id="orderedp"
+                         >ordered?</a> <var>x<sub>1</sub></var>
+                                       <var>x<sub>2</sub></var>)</code><br>
+<code class="signature">(<a href="#unorderedp" id="unorderedp"
+                         >unordered?</a> <var>x<sub>1</sub></var>
+                                       <var>x<sub>2</sub></var>)</code>
 </div>
 
 <p>
-  These procedures are <code>not</code> wrapped around the original
-  procedures, either from the Reports or (in the case of
-  <code>not-nan?</code>, the definitions in this SRFI.
+  Determine if two real numbers are <dfn>ordered</dfn>. Two real
+  numbers are ordered if neither is a NaN. If two numbers are not
+  ordrered, they are <dfn>unordered</dfn>.
+</p>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#sign-negativep" id="sign-negativep"
+                         >sign-negative?</a> <var>x</var>)</code>
+</div>
+
+<p>
+  Returns <code>#t</code> if the number has a negative sign and
+  <code>#f</code> otherwise.
 </p>
 
 <p>
-  For example, <code>not-negative?</code> could be defined as
+  For non-NaN values, this procedure returns <code>#t</code> if the
+  number is less than zero, or if the number is negative zero. If the
+  value is a NaN, the returned boolean is implemetation-defined.
+</p>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#neqp" id="neqp"
+                         >!=</a> <var>x<sub>1</sub></var> <var>x<sub>2</sub></var> <var>x<sub>3</sub></var>…)</code>
+</div>
+
+<p>
+  Returns <code>#t</code> if there exists two arguments in the argument
+  list that are not equal.
+</p>
+
+<p>
+  This predicate is ordered: if any argument is a NaN, the
+  procedure returns false, even if all arguments are NaNs that are
+  <code>eqv?</code>.
+</p>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#nonnegativep" id="nonnegativep"
+                        >nonnegative?</a> <var>x</var>)</code><br>
+<code class="signature">(<a href="#nonpositivep" id="nonpositivep"
+                        >nonpositive?</a> <var>x</var>)</code><br>
+<code class="signature">(<a href="#nonzerop" id="nonzerop"
+                        >nonzero?</a> <var>z</var>)</code><br>
+</div>
+
+<p>
+  These procedures are order predicates around zero. They are defined
+  as equivalent to
 </p>
 
 <pre
->(define (not-negative? z)
-  (not (negative? z)))</pre>
+>(define (nonnegative? x)
+  (>= x 0))
+(define (nonpositive? x)
+  (<= x 0))
+(define (nonzero? x)
+  (!= x 0))</pre>
+
+<p>
+  These predicates are ordered: passing a NaN to these procedures always
+  returns false.
+</p>
 
 <div class="feature">
 <span class="category">(srfi 278)<br>procedure</span>

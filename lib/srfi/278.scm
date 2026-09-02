@@ -1,6 +1,9 @@
 ;;; SPDX-FileCopyrightText: 2026 Peter McGoron
 ;;; SPDX-License-Identifier: MIT
 
+(define signed-zero?
+  (not (eqv? +0.0 -0.0)))
+
 (define signed-imaginary-zero?
   ;; True only when the sign of *imaginary* zero is distinguished.
   ;; Gauche, CHICKEN, for example, don't, even when the distinguish
@@ -42,18 +45,39 @@
 (define (nan? obj)
   (and (number? obj) (r7rs:nan? obj)))
 
-(define (not-nan? obj)
-  (not (nan? obj)))
-(define (not-negative? x)
-  (not (negative? x)))
-(define (not-positive? x)
-  (not (positive? x)))
-(define (not-zero? x)
-  (not (zero? x)))
-(define (not-finite? x)
-  (not (finite? x)))
-(define (not-infinite? x)
-  (not (infinite? x)))
+(define (ordered? x y)
+  (and (not (nan? x))
+       (not (nan? y))))
+
+(define (unordered? x y)
+  (or (nan? x) (nan? y)))
+
+(define (!= x y . rest)
+  (let loop ((x x) (y y) (rest rest))
+    (cond
+      ((unordered? x y) #f)
+      ;; If the two arguments are numerically equal, then
+      ;; check if there are more arguments. If there are none, return
+      ;; false. Otherwise, try to find an unequal argument.
+      ((= x y) (and (pair? rest)
+                    (loop y
+                          (car rest)
+                          (cdr rest))))
+      (else #t))))
+
+(define (sign-negative? x)
+  (if (and signed-zero? (eqv? x -0.0))
+      #t
+      (negative? x)))
+
+(define (nonnegative? x)
+  (>= x 0))
+
+(define (nonpositive? x)
+  (<= x 0))
+
+(define (nonzero? x)
+  (!= x 0))
 
 (define (exact-integer? obj)
   (and (integer? obj) (exact? obj)))

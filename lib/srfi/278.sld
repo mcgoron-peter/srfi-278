@@ -12,8 +12,9 @@
           (scheme complex)
           (scheme case-lambda))
   (export nan? exact-integer?
-          not-nan? not-negative? not-positive?
-          not-zero? not-finite? not-infinite?
+          ordered? unordered?
+          != sign-negative?
+          nonnegative? nonpositive? nonzero?
           imaginary? real? rational? integer?
           sinh cosh tanh asinh acosh atanh
           conjugate rationalize round-away)

@@ -70,6 +70,9 @@
     (and (exact? (real-part z))
          (inexact? (imag-part z)))))
 
+(define signed-zero?
+  (not (eqv? -0.0 +0.0)))
+
 (define needs-strict-definition?
   (cond
     ((not (r5rs:real? 0.0+0.0i)) #f)    ; Already stricter definition
@@ -126,19 +129,58 @@
   (test-assert (not (nan? +inf.0)))
   (test-assert (not (nan? "NaN"))))
 
-(test-group "not wrappers"
-  (test-assert (not-nan? +inf.0))
-  (test-assert (not (not-nan? +nan.0)))
-  (test-assert (not-zero? 1))
-  (test-assert (not (not-zero? 0)))
-  (test-assert (not-positive? -1))
-  (test-assert (not (not-positive? 1)))
-  (test-assert (not-negative? 1))
-  (test-assert (not (not-negative? -1)))
-  (test-assert (not-finite? +inf.0))
-  (test-assert (not (not-finite? 0)))
-  (test-assert (not-infinite? 0))
-  (test-assert (not (not-infinite? +inf.0))))
+(test-group "nonnegative?"
+  (test-assert (nonnegative? 1))
+  (test-assert (nonnegative? 0))
+  (test-assert (nonnegative? -0.0))
+  (test-assert (not (nonnegative? -1)))
+  (test-assert (not (nonnegative? +nan.0))))
+
+(test-group "nonpositive?"
+  (test-assert (nonpositive? -1))
+  (test-assert (nonpositive? 0))
+  (test-assert (nonpositive? -0.0))
+  (test-assert (not (nonpositive? +1)))
+  (test-assert (not (nonpositive? +nan.0))))
+
+(test-group "nonzero?"
+  (test-assert (nonzero? -1))
+  (test-assert (nonzero? 1))
+  (test-assert (not (nonzero? 0)))
+  (test-assert (not (nonzero? 0.0)))
+  (test-assert (not (nonzero? -0.0)))
+  (test-assert (not (nonzero? +nan.0))))
+
+(test-group "sign-negative?"
+  (skip-unless
+   signed-zero?
+   (test-assert (sign-negative? -0.0)))
+  (test-assert (not (sign-negative? 0)))
+  (test-assert (not (sign-negative? +0.0)))
+  (test-assert (sign-negative? -inf.0))
+  (test-assert (not (sign-negative? +inf.0)))
+  (test-assert (sign-negative? -1))
+  (test-assert (not (sign-negative? 1))))
+
+(test-group "ordered? and unordered?"
+  (test-assert (ordered? 0 1))
+  (test-assert (not (unordered? 0 1)))
+  (test-assert (unordered? +nan.0 0))
+  (test-assert (not (ordered? +nan.0 0)))
+  (test-assert (unordered? 0 +nan.0))
+  (test-assert (not (ordered? 0 +nan.0))))
+
+(test-group "!="
+  (test-assert (!= 1 2))
+  (skip-unless
+   signed-zero?
+   (test-assert (not (!= -0.0 +0.0))))
+  (test-assert (not (!= 0 0)))
+  (test-assert (!= 1 1 2))
+  (test-assert (not (!= 0.0 -0.0 0.0 0 -0.0)))
+  (test-assert (!= 0.0 -0.0 0.0 0 -0.0 1))
+  (let ((nan +nan.0))
+    (test-assert (not (!= nan nan)))))
 
 (test-group "round-away"
   (test-eqv +inf.0 (round-away +inf.0))
