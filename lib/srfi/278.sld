@@ -12,37 +12,20 @@
           (scheme complex)
           (scheme case-lambda))
   (export nan? exact-integer?
+          ordered? unordered?
+          != sign-negative?
+          nonnegative? nonpositive? nonzero?
           imaginary? real? rational? integer?
           sinh cosh tanh asinh acosh atanh
           conjugate rationalize round-away)
   (cond-expand
-    ((library (srfi 276))
-     (import (rename (only (srfi 276)
-                           :flonum
-                           :greatest :least :epsilon :pi/2
-                           :expoennt
-                           :make-flonum
-                           :asin
-                           :atanh
-                           :log1+)
-                     (:flonum flonum)
-                     (:greatest fl-greatest)
-                     (:least fl-least)
-                     (:epsilon fl-epsilon)
-                     (:pi/2 fl-pi/2)
-                     (:pi/4 fl-pi/4)
-                     (:make-flonum make-flonum)
-                     (:exponent flexponent)
-                     (:asinh flasinh)
-                     (:sinh flsinh)
-                     (:cosh flcosh)
-                     (:atanh flatanh)
-                     (:log1+ fllog1+))))
-    ((library (srfi 144))
+    ((or chicken (library (srfi 144)))  ; TODO: fix CHICKEN here
      (import (only (srfi 144)
                    flonum
                    fl-greatest
                    fl-epsilon
+                   fl-least
+                   flnormalized?
                    fladjacent
                    fl-pi/2
                    fl-pi/4
@@ -53,8 +36,10 @@
                    flcosh
                    flatanh
                    fllog1+))
-     (begin (define fl-least-normal
-              (- 1.0 (fladjacent 1.0 0.0)))))
+     (begin
+       (define fl-least-normal
+         (do ((candidate fl-least (* 2.0 candidate)))
+             ((flnormalized? candidate) candidate)))))
     ;; If you don't have SRFI 144, you have to define the following
     ;; here:
     ;;

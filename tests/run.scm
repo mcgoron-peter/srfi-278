@@ -70,6 +70,9 @@
     (and (exact? (real-part z))
          (inexact? (imag-part z)))))
 
+(define signed-zero?
+  (not (eqv? -0.0 +0.0)))
+
 (define needs-strict-definition?
   (cond
     ((not (r5rs:real? 0.0+0.0i)) #f)    ; Already stricter definition
@@ -81,11 +84,12 @@
 
 (test-group "real?"
   (test-assert (real? 1.0))
-  (test-assert (real? 1.0+0i))
+  (skip-unless (not (memq 'chicken (features)))
+               (test-assert (real? 1.0+0i)))
   (skip-unless needs-strict-definition?
-    (test-assert (not (real? 1.0+0.0i))))
+               (test-assert (not (real? 1.0+0.0i))))
   (skip-unless needs-strict-definition?
-    (test-assert (not (real? 1.0-0.0i)))))
+               (test-assert (not (real? 1.0-0.0i)))))
 
 (test-group "rational?"
   (test-assert (rational? 1/2))
@@ -114,6 +118,19 @@
 
 (test-group "rationalize"
   (test-eqv 0 (rationalize 1 1))
+  ;; From the Gauche test suite
+  (test-eqv 1/3 (rationalize 3/10 1/10 1/10 #f #f))
+  (test-eqv 2/3 (rationalize 24/35 4/35 4/35 #f #f))
+  (test-eqv 1 (rationalize 1 1/2))
+  (test-eqv 2 (rationalize 5 3))
+  (test-eqv 0 (rationalize 1 3))
+  (test-eqv -1 (rationalize -1 1/2))
+  (test-eqv -2 (rationalize -5 3))
+  (test-eqv 0 (rationalize -1 3))
+  (test-assert (exact? (rationalize 1/2 1/3)))
+  (test-assert (inexact? (rationalize 0.5 1/3)))
+  (test-assert (inexact? (rationalize 1/2 0.1)))
+  (test-assert (inexact? (rationalize 0.5 0.1)))
   (test-eqv 53/10 (rationalize 5967269506265907/1125899906842624
                                (expt 2 -51)
                                (expt 2 -51)
@@ -124,6 +141,59 @@
   (test-assert (nan? +nan.0))
   (test-assert (not (nan? +inf.0)))
   (test-assert (not (nan? "NaN"))))
+
+(test-group "nonnegative?"
+  (test-assert (nonnegative? 1))
+  (test-assert (nonnegative? 0))
+  (test-assert (nonnegative? -0.0))
+  (test-assert (not (nonnegative? -1)))
+  (test-assert (not (nonnegative? +nan.0))))
+
+(test-group "nonpositive?"
+  (test-assert (nonpositive? -1))
+  (test-assert (nonpositive? 0))
+  (test-assert (nonpositive? -0.0))
+  (test-assert (not (nonpositive? +1)))
+  (test-assert (not (nonpositive? +nan.0))))
+
+(test-group "nonzero?"
+  (test-assert (nonzero? -1))
+  (test-assert (nonzero? 1))
+  (test-assert (not (nonzero? 0)))
+  (test-assert (not (nonzero? 0.0)))
+  (test-assert (not (nonzero? -0.0)))
+  (test-assert (not (nonzero? +nan.0))))
+
+(test-group "sign-negative?"
+  (skip-unless
+   signed-zero?
+   (test-assert (sign-negative? -0.0)))
+  (test-assert (not (sign-negative? 0)))
+  (test-assert (not (sign-negative? +0.0)))
+  (test-assert (sign-negative? -inf.0))
+  (test-assert (not (sign-negative? +inf.0)))
+  (test-assert (sign-negative? -1))
+  (test-assert (not (sign-negative? 1))))
+
+(test-group "ordered? and unordered?"
+  (test-assert (ordered? 0 1))
+  (test-assert (not (unordered? 0 1)))
+  (test-assert (unordered? +nan.0 0))
+  (test-assert (not (ordered? +nan.0 0)))
+  (test-assert (unordered? 0 +nan.0))
+  (test-assert (not (ordered? 0 +nan.0))))
+
+(test-group "!="
+  (test-assert (!= 1 2))
+  (skip-unless
+   signed-zero?
+   (test-assert (not (!= -0.0 +0.0))))
+  (test-assert (not (!= 0 0)))
+  (test-assert (!= 1 1 2))
+  (test-assert (not (!= 0.0 -0.0 0.0 0 -0.0)))
+  (test-assert (!= 0.0 -0.0 0.0 0 -0.0 1))
+  (let ((nan +nan.0))
+    (test-assert (not (!= nan nan)))))
 
 (test-group "round-away"
   (test-eqv +inf.0 (round-away +inf.0))

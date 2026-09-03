@@ -1,6 +1,9 @@
 ;;; SPDX-FileCopyrightText: 2026 Peter McGoron
 ;;; SPDX-License-Identifier: MIT
 
+(define signed-zero?
+  (not (eqv? +0.0 -0.0)))
+
 (define signed-imaginary-zero?
   ;; True only when the sign of *imaginary* zero is distinguished.
   ;; Gauche, CHICKEN, for example, don't, even when the distinguish
@@ -41,6 +44,40 @@
 
 (define (nan? obj)
   (and (number? obj) (r7rs:nan? obj)))
+
+(define (ordered? x y)
+  (and (not (nan? x))
+       (not (nan? y))))
+
+(define (unordered? x y)
+  (or (nan? x) (nan? y)))
+
+(define (!= x y . rest)
+  (let loop ((x x) (y y) (rest rest))
+    (cond
+      ((unordered? x y) #f)
+      ;; If the two arguments are numerically equal, then
+      ;; check if there are more arguments. If there are none, return
+      ;; false. Otherwise, try to find an unequal argument.
+      ((= x y) (and (pair? rest)
+                    (loop y
+                          (car rest)
+                          (cdr rest))))
+      (else #t))))
+
+(define (sign-negative? x)
+  (if (and signed-zero? (eqv? x -0.0))
+      #t
+      (negative? x)))
+
+(define (nonnegative? x)
+  (>= x 0))
+
+(define (nonpositive? x)
+  (<= x 0))
+
+(define (nonzero? x)
+  (!= x 0))
 
 (define (exact-integer? obj)
   (and (integer? obj) (exact? obj)))
@@ -100,7 +137,8 @@
                    ((rho) (if (not (nan? x))
                               (+ (make-flonum* (abs x)
                                                (- k))
-                                 (sqrt rho))))
+                                 (sqrt rho))
+                              rho))
                    ((rho) (if (even*? k)
                               (+ rho rho)
                               rho))
@@ -110,9 +148,11 @@
                    ((rho) (make-flonum* (sqrt rho) k))
                    ((zeta) rho)
                    ((eta) y)
-                   ((eta) (if (and (not (zero? rho)) (not (infinite? eta)))
-                              (/ eta rho 2.0)
-                              eta)))
+                   ((eta) (cond
+                            ((eqv? eta 0) 0)
+                            ((and (not (zero? rho)) (not (infinite? eta)))
+                             (/ eta rho 2.0))
+                            (else eta))))
        (if (and (not (zero? rho)) (negative? x))
            (make-rectangular (abs eta) (* rho (sign y)))
            (make-rectangular zeta eta)))))
@@ -123,9 +163,9 @@
     ((eqv? z 0) 0)
     ((real? z) (flsinh (flonum z)))
     (else
-      (make-rectangular (* (flsinh (real-part z))
+      (make-rectangular (* (sinh (real-part z))
                            (cos (imag-part z)))
-                        (* (flcosh (real-part z))
+                        (* (cosh (real-part z))
                            (sin (imag-part z)))))))
 
 (define (cosh z)
@@ -135,8 +175,8 @@
     (else
       (let ((x (flonum (real-part z)))
             (y (imag-part z)))
-        (make-rectangular (* (flcosh x) (cos y))
-                          (* (flsinh x) (sin y)))))))
+        (make-rectangular (* (cosh x) (cos y))
+                          (* (sinh x) (sin y)))))))
 
 (cond-expand
   ((or (library (srfi 144))
@@ -146,8 +186,8 @@
            (s:1-z (csqrt (- 1 z)))
            (s:1+z (csqrt (+ 1 z))))
        (make-rectangular (atan x (real-part (* s:1-z s:1+z)))
-                         (flasinh (imag-part (* (conjugate s:1-z)
-                                                s:1+z)))))))
+                         (asinh (imag-part (* (conjugate s:1-z)
+                                              s:1+z)))))))
   (else (define casin asin)))
 
 ;;; Kahan's algorithm can cope with all unsigned zeros, or all signed
@@ -180,33 +220,34 @@
           ((real? z) (flasinh (flonum z)))
           (else (*-i (casin (*+i z))))))
       (lambda (z)
-        (if (eqv? z 0)
-            0
-            (let ((w (* -i (casin (* +i z))))
-                  (x (real-part z))
-                  (y (imag-part z)))
-              (cond
-                ((positive? y)                        ; First or second
-                 (make-rectangular (* (sign x)        ; quadrant. The CCW rule
-                                      (real-part w))  ; was applied, meaning
-                                   (imag-part w)))    ; that we should flip
-                                                      ; the sign.
-
-                ((zero? y) w)
-                (else                                 ; Third or fourth
-                 (make-rectangular (* (sign x)        ; quadrant. We might
-                                      -1              ; need to flip the sign,
-                                      (real-part w))  ; but in the opposite
-                                   (imag-part w)))    ; scenarios.
-              ))))))
+        (cond
+          ((eqv? z 0) 0)
+          ((real? z) (flasinh (flonum z)))
+          (else
+           (let ((w (* -i (casin (* +i z))))
+                 (x (real-part z))
+                 (y (imag-part z)))
+             (cond
+               ((positive? y)                        ; First or second
+                (make-rectangular (* (sign x)        ; quadrant. The CCW rule
+                                     (real-part w))  ; was applied, meaning
+                                  (imag-part w)))    ; that we should flip
+               ; the sign.
+               ((zero? y) w)
+               (else                                 ; Third or fourth
+                (make-rectangular (* (sign x)        ; quadrant. We might
+                                     -1              ; need to flip the sign,
+                                     (real-part w))  ; but in the opposite
+                                  (imag-part w)))    ; scenarios.
+)))))))
 
 (define (%acosh z)
   (let* ((x (real-part z))
          (y (imag-part z))
          (sqrt:z-1 (csqrt (- z 1)))
          (sqrt:z+1 (csqrt (+ z 1))))
-    (make-rectangular (flasinh (real-part (* (conjugate sqrt:z+1)
-                                             sqrt:z-1)))
+    (make-rectangular (asinh (real-part (* (conjugate sqrt:z+1)
+                                           sqrt:z-1)))
                       (* 2 (atan (imag-part sqrt:z-1)
                                  (real-part sqrt:z+1))))))
 
