@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2026 Peter McGoron
+# SPDX-License-Identifier: MIT
+
 .POSIX:
 VERSION=0.2.1
 

@@ -1,5 +1,7 @@
 ;;; SPDX-FileCopyrightText: 2026 Peter McGoron
-;;; SPDX-License-Identifier: MIT
+;;; SPDX-FileCopyrightText: 2000-2007 Felix L. Winkelmann
+;;; SPDX-FileCopyrightText: 2007-2022 The CHICKEN Team
+;;; SPDX-License-Identifier: MIT AND BSD-3-Clause
 
 (define signed-zero?
   (not (eqv? +0.0 -0.0)))
@@ -450,7 +452,7 @@
   Copyright (c) 2007-2022, The CHICKEN Team
   Copyright (c) 2000-2007, Felix L. Winkelmann
   All rights reserved.
-  
+
   Redistribution and use in source and binary forms, with or without
   modification, are permitted provided that the following conditions
   are met:
@@ -461,7 +463,7 @@
      documentation and/or other materials provided with the distribution.
   3. The name of the authors may not be used to endorse or promote products
      derived from this software without specific prior written permission.
-  
+
   THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
   IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
   OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
