@@ -396,6 +396,11 @@
     (test-real-and-imag (naive-asinh 1+2i)
                         (asinh 1+2i))))
 
+(test-group "exact integer nth root"
+  (let-values (((e i) (exact-integer-nth-root 40 3)))
+    (test-equal 3 e)
+    (test-equal (- 40 27) i)))
+
 (cond-expand
   ((library (srfi 64))
    (define the-test-runner (test-runner-get)))

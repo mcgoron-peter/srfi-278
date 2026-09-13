@@ -8,6 +8,10 @@ SPDX-License-Identifier: MIT
     <meta charset="utf-8">
     <title>SRFI 278: Supplemental Numerics</title>
     <style>
+            table {
+              border: 1px solid;
+              margin-bottom: 12pt;
+            }
             @media (prefers-color-scheme: light) {
               :root {
                 --background-color: white;
@@ -15,6 +19,14 @@ SPDX-License-Identifier: MIT
                 --text-color: black;
                 --visited-link-color: purple;
               }
+
+              pre {
+                  border: 1px solid;
+                  padding: 7.5px;
+                  background-color: #f0f0f0;
+                  margin-bottom: 18pt;
+              }
+
               code {
                   background-color: #f0f0f0;
               }
@@ -27,6 +39,14 @@ SPDX-License-Identifier: MIT
                 --text-color: #e0e0e0;
                 --visited-link-color: Orchid;
               }
+
+              pre {
+                  border: 1px solid;
+                  padding: 7.5px;
+                  background-color: #2b2b2b;
+                  margin-bottom: 18pt;
+              }
+
               code {
                 background-color: #2b2b2b;
               }
@@ -41,9 +61,6 @@ SPDX-License-Identifier: MIT
 
             .normal-font {
               font-family: sans-serif;
-            }
-            .no-bg {
-              background-color: var(--background-color);
             }
 
             .feature {
@@ -71,9 +88,9 @@ SPDX-License-Identifier: MIT
             }
 
             .example-code {
-              background-color: var(--background-color);
+              /* background-color: var(--background-color); */
               display: inline-block;
-              min-width: 26ch;
+              min-width: 46ch;
             }
 
             a {
@@ -150,11 +167,11 @@ SPDX-License-Identifier: MIT
       are sufficient to capture the behavior shown in the examples.
   </li>
   <li>Incoroporate some tests from Gambit’s test suite.</li>
-  <li>More tests for the <a href="#rationalize"><code>rationalize</code></a>
-      procedure.
+  <li><del>More tests for the <a href="#rationalize"><code>rationalize</code></a>
+      procedure.</del>
   </li>
-  <li>The sample implementation should respect the counter-clockwise rule
-      when dealing with mixed-exactness complex numbers.
+  <li><del>The sample implementation should respect the counter-clockwise rule
+      when dealing with mixed-exactness complex numbers.</del>
   </li>
 </ol>
 
@@ -314,6 +331,7 @@ SPDX-License-Identifier: MIT
   <a href="#integerp"><code>integer?</code></a>
   <a href="#exact-integerp"><code>exact-integer?</code></a>
   <a href="#rationalize"><code>rationalize</code></a>
+  <a href="#exact-integer-nth-root"><code>exact-integer-nth-root</code></a>
   <a href="#nanp"><code>nan?</code></a>
   <a href="#orderedp"><code>ordered?</code></a>
   <a href="#unorderedp"><code>unordered?</code></a>
@@ -535,15 +553,17 @@ SPDX-License-Identifier: MIT
 </div>
 
 <p>
-  These procedures are order predicates around zero. They are defined
-  as equivalent to
+  These procedures are order predicates around zero. They return
+  <code>#t</code> if the number <var>x</var> is an ordered number
+  that is not negative, not positive, and not zero respectively.
+  Definitions of these procedures could be
 </p>
 
 <pre
 >(define (nonnegative? x)
-  (>= x 0))
-(define (nonpositive? x)
   (&gt;= x 0))
+(define (nonpositive? x)
+  (&lt;= x 0))
 (define (nonzero? x)
   (!= x 0))</pre>
 
@@ -629,6 +649,24 @@ SPDX-License-Identifier: MIT
   <span class="report-name">R<sup>7</sup>RS</span>.
 </p>
 </div>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#exact-integer-nth-root" id="exact-integer-nth-root"
+                        >exact-integer-nth-root</a> <var>k</var> <var>n</var>)</code><br>
+</div>
+
+<p>It is an error if <var>n</var> is not an exact integer.</p>
+
+<p>
+  Returns two exact integers, <var>s</var> and <var>r</var>
+  such that
+  <var>k</var>= <var>s</var><sup><var>n</var></sup> + <var>r</var>
+  and <var>k</var> &lt; (<var>s</var> + 1)<sup>n</sup>.
+</p>
+
+<pre
+><code class="example-code">(exact-integer-nth-root 40 3)</code> ⇒ 3 13</pre>
 
 <div class="feature">
 <span class="category">(srfi 278)<br>procedure</span>

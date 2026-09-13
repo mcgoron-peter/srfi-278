@@ -445,3 +445,65 @@
        (if (or (inexact? x) (inexact? dlower) (inexact? dupper))
            (inexact value)
            value)))))
+
+#|
+  Copyright (c) 2007-2022, The CHICKEN Team
+  Copyright (c) 2000-2007, Felix L. Winkelmann
+  All rights reserved.
+  
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+  1. Redistributions of source code must retain the above copyright
+     notice, this list of conditions and the following disclaimer.
+  2. Redistributions in binary form must reproduce the above copyright
+     notice, this list of conditions and the following disclaimer in the
+     documentation and/or other materials provided with the distribution.
+  3. The name of the authors may not be used to endorse or promote products
+     derived from this software without specific prior written permission.
+  
+  THIS SOFTWARE IS PROVIDED BY THE AUTHORS ``AS IS'' AND ANY EXPRESS OR
+  IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+  OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+  IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+  NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+  THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+|#
+
+(define (exact-integer-nth-root k n)
+  (if (or (eq? 0 k) (eq? 1 k) (eq? 1 n)) ; Maybe call exact-integer-sqrt on n=2?
+      (values k 0)
+      (let ((len (integer-length k)))
+	(if (< len n)	  ; Idea from Gambit: 2^{len-1} <= k < 2^{len}
+	    (values 1 (- k 1)) ; Since x >= 2, we know x^{n} can't exist
+	    ;; Set initial guess to (at least) 2^ceil(ceil(log2(k))/n)
+	    (let* ((shift-amount (exact (ceiling (/ (+ len 1) n))))
+		   (g0 (arithmetic-shift 1 shift-amount))
+		   (n-1 (- n 1)))
+	      (let lp ((g0 g0)
+		       (g1 (quotient
+			    (+ (* n-1 g0)
+			       (quotient k (integer-power g0 n-1)))
+			    n)))
+		(if (< g1 g0)
+		    (lp g1 (quotient
+			    (+ (* n-1 g1)
+			       (quotient k (integer-power g1 n-1)))
+			    n))
+		    (values g0 (- k (integer-power g0 n))))))))))
+
+(define (integer-power base e)
+  (define (square x) (* x x))
+  (if (negative? e)
+      (/ 1 (integer-power base (- e)))
+      (let lp ((res 1) (e2 e))
+        (cond
+         ((eq? e2 0) res)
+         ((even? e2)	     ; recursion is faster than iteration here
+          (* res (square (lp 1 (arithmetic-shift e2 -1)))))
+         (else
+          (lp (* res base) (- e2 1)))))))
