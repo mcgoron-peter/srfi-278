@@ -359,6 +359,7 @@ SPDX-License-Identifier: MIT
   <a href="#exact-integerp"><code>exact-integer?</code></a>
   <a href="#rationalize"><code>rationalize</code></a>
   <a href="#exact-integer-nth-root"><code>exact-integer-nth-root</code></a>
+  <a href="#exact-integer-log"><code>exact-integer-log</code></a>
   <a href="#nanp"><code>nan?</code></a>
   <a href="#orderedp"><code>ordered?</code></a>
   <a href="#unorderedp"><code>unordered?</code></a>
@@ -697,6 +698,26 @@ SPDX-License-Identifier: MIT
 
 <div class="feature">
 <span class="category">(srfi 278)<br>procedure</span>
+<code class="signature">(<a href="#exact-integer-log" id="exact-integer-log"
+                        >exact-integer-log</a> <var>k</var> <var>b</var>)</code><br>
+</div>
+
+<p>It is an error if <var>b</var> is not an exact integer greater than 1.
+It is an error if <var>k</var> is zero.</p>
+
+<p>
+  Returns two exact integers, <var>s</var> and <var>r</var>
+  such that
+  <var>k</var>=<var>b</var><sup><var>s</var></sup> + <var>r</var>
+  and <var>k</var> &lt; <var>b</var><sup><var>s</var> + 1</sup>.
+</p>
+
+<pre
+><code class="example-code">(exact-integer-log 8 2)</code> => 3 0
+<code class="example-code">(exact-integer-log 11 2)</code> => 3 3</pre>
+
+<div class="feature">
+<span class="category">(srfi 278)<br>procedure</span>
 <code class="signature">(<a href="#sinh" id="sinh"
                         >sinh</a> <var>z</var>)</code><br>
 <code class="signature">(<a href="#cosh" id="cosh"
@@ -900,6 +921,11 @@ go according to the following formulæ:</p>
 
 <p>I thank William Kahan for doing the hard part for me (and many other
    people).</p>
+
+<p>
+  I thank Jeronimo Pellegrini for his suggestion and pseudocode for
+  <code><a href="#exact-integer-log">exact-integer-log</a></code>.
+</p>
 
 <h2 id="references"><a href="#references"></a> References</h2>
 

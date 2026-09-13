@@ -401,6 +401,14 @@
     (test-equal 3 e)
     (test-equal (- 40 27) i)))
 
+(test-group "exact integer log"
+  (let-values (((e i) (exact-integer-log 8 2)))
+    (test-equal 3 e)
+    (test-equal 0 i))
+  (let-values (((e i) (exact-integer-log 11 2)))
+    (test-equal 3 e)
+    (test-equal 3 i)))
+
 (cond-expand
   ((library (srfi 64))
    (define the-test-runner (test-runner-get)))

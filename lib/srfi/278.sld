@@ -18,7 +18,7 @@
           imaginary? real? rational? integer?
           sinh cosh tanh asinh acosh atanh
           conjugate rationalize round-away
-          exact-integer-nth-root)
+          exact-integer-nth-root exact-integer-log)
   (cond-expand
     (chicken (import (chicken bitwise)))
     (else (import (srfi 151))))
