@@ -3,7 +3,7 @@
 
 (define-library (srfi 278)
   (import (except (scheme base) exact-integer? real? rational? integer?
-                                rationalize)
+                  rationalize)
           (prefix (only (scheme base) real? rational? integer?)
                   r5rs:)
           (scheme write)
@@ -17,7 +17,11 @@
           nonnegative? nonpositive? nonzero?
           imaginary? real? rational? integer?
           sinh cosh tanh asinh acosh atanh
-          conjugate rationalize round-away)
+          conjugate rationalize round-away
+          exact-integer-nth-root)
+  (cond-expand
+    (chicken (import (chicken bitwise)))
+    (else (import (srfi 151))))
   (cond-expand
     ((or chicken (library (srfi 144)))  ; TODO: fix CHICKEN here
      (import (only (srfi 144)
