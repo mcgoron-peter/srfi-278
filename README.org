@@ -9,6 +9,8 @@
 
 keywords: [[https://srfi.schemers.org/?keywords=numbers][Numbers]]
 
+library-name: numerics
+
 This repository hosts [[https://srfi.schemers.org/srfi-278/][SRFI 278]]: Supplemental Numerics, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
 
 This SRFI is in /draft/ status.
