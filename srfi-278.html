@@ -117,6 +117,12 @@ SPDX-License-Identifier: MIT
               font-family: serif;
               font-style: italic;
             }
+
+            h2 > a[href^="#"]::before,
+            h3 > a[href^="#"]::before,
+            h4 > a[href^="#"]::before {
+              content: "¶";
+            }
     </style>
     <link href="/favicon.png" rel="icon" sizes="192x192" type="image/png">
     <link rel="stylesheet" href="https://srfi.schemers.org/srfi.css" type="text/css">
@@ -130,7 +136,7 @@ SPDX-License-Identifier: MIT
 
 <p>by Peter McGoron</p>
 
-<h2 id="status">Status</h2>
+<h2 id="status"><a href="#status"></a> Status</h2>
 
     <p>This SRFI is currently in <em>draft</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+278+at+srfi+dotschemers+dot+org">srfi-278@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-278/">archive</a>.</p>
     <ul>
@@ -144,7 +150,7 @@ SPDX-License-Identifier: MIT
       <em>draft</em> status (<a href="https://htmlpreview.github.io/?https://github.com/mcgoron-peter/srfi-278/blob/master/srfi-278.html">preview</a>)</li>
     </ul>
 
-<h2 id="abstract">Abstract</h2>
+<h2 id="abstract"><a href="#abstract"></a> Abstract</h2>
 
 <p>
   This SRFI defines procedures on Scheme numbers that aim to improve the
@@ -156,7 +162,7 @@ SPDX-License-Identifier: MIT
   to make complex number arithmetic more predictable.
 </p>
 
-<h2 id="issues">Issues</h2>
+<h2 id="issues"><a href="#issues"></a> Issues</h2>
 
 <ol>
   <li>If you have experience with writing numeric procedures like these,
@@ -175,7 +181,7 @@ SPDX-License-Identifier: MIT
   </li>
 </ol>
 
-<h2 id="rationale">Rationale</h2>
+<h2 id="rationale"><a href="#rationale"></a> Rationale</h2>
 
 <p>
   This SRFI adds a few procedures that can be categorized into the following:
@@ -293,7 +299,7 @@ SPDX-License-Identifier: MIT
   extended to non-integers.
 </p>
 
-<h2 id="specification">Specification</h2>
+<h2 id="specification"><a href="#specification"></a> Specification</h2>
 
 <p>
   Requirement level verbs are in strong text.
@@ -319,7 +325,7 @@ SPDX-License-Identifier: MIT
   The examples assume the existence of mixed exactness complex numbers.
 </p>
 
-<h3 id="library">Library</h3>
+<h3 id="library"><a href="#library"></a> Library</h3>
 <p>The following are exported from the library defined by this SRFI.</p>
 
 <p class="never-break-inside">
@@ -775,7 +781,7 @@ go according to the following formulæ:</p>
 ><code class="example-code">(atanh 0-1.0i)</code> ⇒ -.7853981633974483i
 </pre>
 
-<h3 id="mixed-arithmetic"><a href="#mixed-arithmetic">&para;</a> Provisions for mixed arithmetic</h3>
+<h3 id="mixed-arithmetic"><a href="#mixed-arithmetic"></a> Provisions for mixed arithmetic</h3>
 
 <p>
   Some implementations of mixed real-complex arithmetic are not implemented
@@ -820,7 +826,7 @@ go according to the following formulæ:</p>
   would have instead evaluated to <code>+inf.0+nan.0i</code>.
 </p>
 
-<h3 id="exact-transcendental"><a href="#exact-transcendental">&para;</a> Special exact values for trancendental functions</h3>
+<h3 id="exact-transcendental"><a href="#exact-transcendental"></a> Special exact values for trancendental functions</h3>
 
 <p>
   Implementations <strong>should</strong> return exact results for the
@@ -842,7 +848,7 @@ go according to the following formulæ:</p>
 <code class="example-code">(atan 0)</code> ⇒ 0
 <code class="example-code">(asin 0)</code> ⇒ 0</pre>
 
-<h2 id="implementation">Implementation</h2>
+<h2 id="implementation"><a href="#implementation"></a> Implementation</h2>
 
 <p>
   A sample <span class="report-name">R<sup>7</sup>RS</span>
@@ -863,7 +869,7 @@ go according to the following formulæ:</p>
   <span class="report-name">R<sup>7</sup>RS</span>.
 </p>
 
-<h2 id="acknowledgements">Acknowledgements</h2>
+<h2 id="acknowledgements"><a href="#acknowledgements"></a> Acknowledgements</h2>
 
 <p>I thank Bradley Lucier for writing high-quality
    implementations of the (inverse) hyperbolic functions for Gambit,
@@ -874,7 +880,7 @@ go according to the following formulæ:</p>
 <p>I thank William Kahan for doing the hard part for me (and many other
    people).</p>
 
-<h2 id="references">References</h2>
+<h2 id="references"><a href="#references"></a> References</h2>
 
 <p id="kahan1987"><a href="#kahan1987">[1]</a>:
 Kahan, W. Branch cuts for complex elementary functions;
@@ -888,7 +894,7 @@ Arithmetic (IEEE STD 754-2019).
 >doi:10.1109/IEEESTD.2019.8766229</a>. (2019).
 ISBN 978-1-5044-5924-2.</p>
 
-<h2 id="copyright">Copyright</h2>
+<h2 id="copyright"><a href="#copyright"></a> Copyright</h2>
 <p>&copy; 2026 Peter McGoron.</p>
 
 <p>
