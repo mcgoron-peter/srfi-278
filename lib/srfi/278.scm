@@ -1,5 +1,7 @@
 ;;; SPDX-FileCopyrightText: 2026 Peter McGoron
-;;; SPDX-License-Identifier: MIT
+;;; SPDX-FileCopyrightText: 2000-2007 Felix L. Winkelmann
+;;; SPDX-FileCopyrightText: 2007-2022 The CHICKEN Team
+;;; SPDX-License-Identifier: MIT AND BSD-3-Clause
 
 (define signed-zero?
   (not (eqv? +0.0 -0.0)))
