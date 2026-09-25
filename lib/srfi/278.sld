@@ -19,6 +19,11 @@
           sinh cosh tanh asinh acosh atanh
           conjugate rationalize round-away
           exact-integer-nth-root exact-integer-log)
+  ;; FIXME: Gambit has this too, so this should use Gambit's built-in
+  ;; version if building for Gambit.
+  (cond-expand
+    (chicken (import (only (chicken base) exact-integer-nth-root)))
+    (else (include "278.exact-integer-nth-root.scm")))
   (cond-expand
     (chicken (import (chicken bitwise)))
     (else (import (srfi 151))))
