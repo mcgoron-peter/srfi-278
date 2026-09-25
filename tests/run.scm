@@ -228,7 +228,6 @@
   (test-eqv +i (conjugate -i)))
 
 (test-group "sinh"
-  ;; TODO: Better way to test?
   (test-eqv 0 (sinh 0))
   (test-eqv 0.0 (sinh 0.0))
   (test-eqv -0.0 (sinh -0.0))

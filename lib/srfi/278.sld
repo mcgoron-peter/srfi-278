@@ -23,7 +23,7 @@
     (chicken (import (chicken bitwise)))
     (else (import (srfi 151))))
   (cond-expand
-    ((or chicken (library (srfi 144)))  ; TODO: fix CHICKEN here
+    ((library (srfi 144))
      (import (only (srfi 144)
                    flonum
                    fl-greatest

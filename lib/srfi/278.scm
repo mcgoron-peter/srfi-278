@@ -163,6 +163,8 @@
 (define (sinh z)
   (cond
     ((eqv? z 0) 0)
+    ((eqv? z +0.0) 0.0)
+    ((eqv? z -0.0) -0.0)   ; Hack for CHICKEN
     ((real? z) (flsinh (flonum z)))
     (else
       (make-rectangular (* (sinh (real-part z))
@@ -335,6 +337,8 @@
          (ax (abs x)))
     (cond
       ((eqv? z 0) 0)
+      ((eqv? z +0.0) +0.0)
+      ((eqv? z -0.0) -0.0)
       ((> ax tanh-overflow-treshold)
        (if (real? z)
            (* 1.0 (sign x))
@@ -450,6 +454,7 @@
 
 (define (exact-integer-log n b)
   ;; See Jeronimo Pellegrini's email:
+  ;; https://srfi-email.schemers.org/srfi-278/msg/43517844/
   (unless (and (exact-integer? n)
                (positive? n)
                (exact-integer? b)
@@ -526,32 +531,20 @@
   (if (or (eq? 0 k) (eq? 1 k) (eq? 1 n)) ; Maybe call exact-integer-sqrt on n=2?
       (values k 0)
       (let ((len (integer-length k)))
-	(if (< len n)	  ; Idea from Gambit: 2^{len-1} <= k < 2^{len}
-	    (values 1 (- k 1)) ; Since x >= 2, we know x^{n} can't exist
-	    ;; Set initial guess to (at least) 2^ceil(ceil(log2(k))/n)
-	    (let* ((shift-amount (exact (ceiling (/ (+ len 1) n))))
-		   (g0 (arithmetic-shift 1 shift-amount))
-		   (n-1 (- n 1)))
-	      (let lp ((g0 g0)
-		       (g1 (quotient
-			    (+ (* n-1 g0)
-			       (quotient k (integer-power g0 n-1)))
-			    n)))
-		(if (< g1 g0)
-		    (lp g1 (quotient
-			    (+ (* n-1 g1)
-			       (quotient k (integer-power g1 n-1)))
-			    n))
-		    (values g0 (- k (integer-power g0 n))))))))))
-
-(define (integer-power base e)
-  (define (square x) (* x x))
-  (if (negative? e)
-      (/ 1 (integer-power base (- e)))
-      (let lp ((res 1) (e2 e))
-        (cond
-         ((eq? e2 0) res)
-         ((even? e2)	     ; recursion is faster than iteration here
-          (* res (square (lp 1 (arithmetic-shift e2 -1)))))
-         (else
-          (lp (* res base) (- e2 1)))))))
+        (if (< len n)          ; Idea from Gambit: 2^{len-1} <= k < 2^{len}
+            (values 1 (- k 1)) ; Since x >= 2, we know x^{n} can't exist
+            ;; Set initial guess to (at least) 2^ceil(ceil(log2(k))/n)
+            (let* ((shift-amount (exact (ceiling (/ (+ len 1) n))))
+                   (g0 (arithmetic-shift 1 shift-amount))
+                   (n-1 (- n 1)))
+              (let lp ((g0 g0)
+                       (g1 (quotient
+                            (+ (* n-1 g0)
+                               (quotient k (expt g0 n-1)))
+                            n)))
+                (if (< g1 g0)
+                    (lp g1 (quotient
+                            (+ (* n-1 g1)
+                               (quotient k (expt g1 n-1)))
+                            n))
+                    (values g0 (- k (expt g0 n))))))))))
