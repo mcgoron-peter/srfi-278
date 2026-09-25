@@ -19,11 +19,7 @@
           sinh cosh tanh asinh acosh atanh
           conjugate rationalize round-away
           exact-integer-nth-root exact-integer-log)
-  ;; FIXME: Gambit has this too, so this should use Gambit's built-in
-  ;; version if building for Gambit.
-  (cond-expand
-    (chicken (import (only (chicken base) exact-integer-nth-root)))
-    (else (include "278.exact-integer-nth-root.scm")))
+
   (cond-expand
     (chicken (import (chicken bitwise)))
     (else (import (srfi 151))))
@@ -79,4 +75,11 @@
     ;; I would be very interested in any Schemes using non-standard
     ;; floating point formats.
 )
+  (cond-expand
+    (chicken (import (only (chicken base) exact-integer-nth-root)))
+    (else (include "278.exact-integer-nth-root.scm")))
+  ;; FIXME: STklos has this, so this should cond-expand and check for
+  ;; STklos.
+  (include "278.exact-integer-log.scm")
+
   (include "278.scm"))

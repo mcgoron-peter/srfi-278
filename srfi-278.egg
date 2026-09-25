@@ -11,6 +11,8 @@
  (components (extension srfi-278
                (source "lib/srfi/278.sld")
                (source-dependencies "lib/srfi/278.scm")
+               ; exact-integer-nth-root is built in
+               (source-dependencies "lib/srfi/278.exact-integer-log.scm")
                (csc-options "-O3")
                )
              ))
