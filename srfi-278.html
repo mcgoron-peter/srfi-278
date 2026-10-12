@@ -648,7 +648,7 @@ Extensions to <span class="report-name">R<sup>7</sup>RS</span> procedures</h4>
   <span class="report-name">R<sup>7</sup>RS</span>. When
   <var>delta-lower</var> and <var>delta-upper</var> are specified,
   then the simplest rational between <var>x</var>&minus;|<var>delta-lower</var>|
-  and <var>x</var>+|<var>delta-higher</var>| is returned.
+  and <var>x</var>+|<var>delta-upper</var>| is returned.
 </p>
 
 <p>
@@ -704,7 +704,7 @@ Functions returning exact integers</h4>
                         >exact-integer-nth-root</a> <var>k</var> <var>n</var>)</code><br>
 </div>
 
-<p>It is an error if <var>n</var> is not an exact integer.</p>
+<p>It is an error if <var>n</var> is not a positive exact integer.</p>
 
 <p>
   Returns two nonnegative exact integers, <var>s</var> and <var>r</var>
@@ -795,11 +795,11 @@ It is an error if <var>k</var> is not positive.</p>
 <p>
 The value of <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>log</mi><mo>⁡</mo><mi>z</mi></mrow></math> for non-real <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>z</mi></math> is defined in terms of <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>log</mi></math> as </p>
 <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>log</mi><mo>⁡</mo><mi>z</mi><mo>=</mo><mi>log</mi><mo>⁡</mo><mrow><mo>|</mo><mi>z</mi><mo>|</mo></mrow><mo>+</mo><mrow><mo>(</mo><mi>angle</mi><mo>⁡</mo><mi>z</mi><mo>)</mo></mrow><mo>⁢</mo><mi>i</mi></mrow></math><p>
-where <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>angle</mi><mo>⁡</mo><mi>z</mi></mrow></math> is the phase of <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>z</mi><mo>=</mo><mi>a</mi><mo>⁢</mo><msup><mi>e</mi><mrow><mi>π</mi><mo>⁢</mo><mi>θ</mi></mrow></msup></mrow></math> specified as </p>
-<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>angle</mi><mo>⁡</mo><mi>z</mi><mo>=</mo><mi>θ</mi><mo>+</mo><mn>2</mn><mo>⁢</mo><mi>i</mi><mo>⁢</mo><mi>n</mi></mrow></math><p>
-with <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>n</mi></math> chosen such that <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>−</mo><mo>⁢</mo><mi>π</mi><mo>≤</mo><mo>angle</mo><mo>⁡</mo><mo>z</mo><mo>≤</mo><mi>π</mi></mrow></math>.
+where <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>angle</mi><mo>⁡</mo><mi>z</mi></mrow></math> is the phase of <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>z</mi><mo>=</mo><mi>a</mi><mo>⁢</mo><msup><mi>e</mi><mrow><mi>i</mi><mo>⁢</mo><mi>θ</mi></mrow></msup></mrow></math> specified as </p>
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi>angle</mi><mo>⁡</mo><mi>z</mi><mo>=</mo><mi>θ</mi><mo>+</mo><mn>2</mn><mo>⁢</mo><mi>π</mi><mo>⁢</mo><mi>n</mi></mrow></math><p>
+with <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mi>n</mi></math> chosen such that <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>−</mo><mo>⁢</mo><mi>π</mi><mo>≤</mo><mo>angle</mo><mo>⁡</mo><mi>z</mi><mo>≤</mo><mi>π</mi></mrow></math>.
 When zero is unsigned, the principal expression for angle is
-<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>−</mo><mo>⁢</mo><mi>π</mi><mo>&lt;</mo><mo>angle</mo><mo>⁡</mo><mo>z</mo><mo>≤</mo><mi>π</mi></mrow></math>.
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>−</mo><mo>⁢</mo><mi>π</mi><mo>&lt;</mo><mo>angle</mo><mo>⁡</mo><mi>z</mi><mo>≤</mo><mi>π</mi></mrow></math>.
 </p>
 
 <p>The principal expression for square root is <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><msqrt><mi>z</mi></msqrt><mo>=</mo><msup><mi>z</mi><mrow><mn>1</mn><mo>/</mo><mn>2</mn></mrow></msup></math>.</p>
