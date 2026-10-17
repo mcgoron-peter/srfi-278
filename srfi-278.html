@@ -235,7 +235,7 @@ SPDX-License-Identifier: MIT
   has been added to correspond to the roundTiesToAway rounding mode in
   IEEE 754-2019. In addition, <a href="#unorderedp"><code>unordered?</code></a>
   and <a href="#orderedp"><code>ordered?</code></a> have been added to
-  determine if two arguments have a sensible order relationship.
+  determine whether two arguments have a sensible order relationship.
   The procedures
   <a href="#nonpositivep"><code>nonpositive?</code></a>,
   <a href="#nonnegativep"><code>nonnegative?</code></a>,
@@ -294,7 +294,7 @@ SPDX-License-Identifier: MIT
   predicates to make it easier to handle code that assumes the
   <span class="report-name">R<sup>6</sup>RS</span> semantics. These
   procedures are likely to be added to the
-<span class="report-name">R<sup>7</sup>RS</span> Large prefixed with
+<span class="report-name">R<sup>7</sup>RS</span> Large with names prefixed with
   <code>strictly-</code>. Hopefully a future standard will change the
   numeric tower to have the
   <span class="report-name">R<sup>6</sup>RS</span> semantics.
@@ -477,7 +477,7 @@ Stricter numeric tower</h4>
 <p>
   Returns <code>#t</code> iff <var>obj</var> is
   <a href="#realp"><code>real?</code></a> and
-  there exists exact integers
+  there exist exact integers
   <var>k<sub>1</sub></var>, <var>k<sub>2</sub></var> such that
   <code>(= <var>obj</var> (/ <var>k<sub>1</sub></var> <var>k<sub>2</sub></var>))</code>.
 </p>
@@ -538,7 +538,7 @@ Predicates related to order</h4>
 </div>
 
 <p>
-  Returns <code>#t</code> if there exists two arguments in the argument
+  Returns <code>#t</code> if there exist two arguments in the argument
   list that are not equal.
 </p>
 
@@ -854,7 +854,7 @@ go according to the following formulæ:</p>
 </p>
 
 <pre
-><code class="example-code">(* 1 <var>z</var>)</code>    ⇒ <var>z</var>
+><code class="example-code">(* 1 <var>z</var>)</code> ⇒ <var>z</var>
 <code class="example-code">(* +i (* +i (* +i (* +i z))))</code> ⇒ <var>z</var></pre>
 
 <p>
