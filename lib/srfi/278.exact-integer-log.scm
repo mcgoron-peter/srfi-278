@@ -1,3 +1,7 @@
+; SPDX-FileCopyrightText: 2026 Peter McGoron
+;
+; SPDX-License-Identifier: MIT
+
 (define (exact-integer-log n b)
   ;; See Jeronimo Pellegrini's email:
   ;; https://srfi-email.schemers.org/srfi-278/msg/43517844/
