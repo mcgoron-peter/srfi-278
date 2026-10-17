@@ -13,7 +13,7 @@ library-name: numerics
 
 This repository hosts [[https://srfi.schemers.org/srfi-278/][SRFI 278]]: Supplemental Numerics, a [[https://srfi.schemers.org/][Scheme Request for Implementation]].
 
-This SRFI is in /draft/ status.
+This SRFI is in /final/ status.
 See also [[/srfi-144/][SRFI 144: Flonums]].
 The full documentation for this SRFI can be found in the [[https://srfi.schemers.org/srfi-278/srfi-278.html][SRFI Document]].
 
