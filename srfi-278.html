@@ -136,6 +136,32 @@ SPDX-License-Identifier: MIT
 
 <p>by Peter McGoron</p>
 
+<h2 id="status"><a href="#status"></a> Status</h2>
+
+    <p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+278+at+srfi+dotschemers+dot+org">srfi-278@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-278/">archive</a>.</p>
+    <ul>
+      <li>Received: 2026-07-12</li>
+      <li>Draft #1 published: 2026-07-18</li>
+      <li>Draft #2 published: 2026-08-05</li>
+      <li>Draft #3 published: 2026-09-02</li>
+      <li>Draft #4 published: 2026-09-12</li>
+      <li>Draft #5 published: 2026-09-13</li>
+      <li>Draft #6 published: 2026-09-27</li>
+      <li>Finalized: 2026-10-17</li>
+    </ul>
+
+<h2 id="abstract"><a href="#abstract"></a> Abstract</h2>
+
+<p>
+  This SRFI defines procedures on Scheme numbers that aim to improve the
+  portability and usefulness of Scheme arithmetic. These procedures include
+  predicates with extended domains, hyperbolic and inverse hyperbolic
+  functions, the <span class="report-name">R<sup>6</sup>RS</span> numeric
+  tower, and additional procedures for rounding. Also included are
+  recommendations and justifications for mixed inexact/exact arithmetic
+  to make complex number arithmetic more predictable.
+</p>
+
 <h2 id="toc">Table of contents</h2>
 <ul>
   <li><a href="#status"> Status</a></li>
@@ -164,32 +190,6 @@ SPDX-License-Identifier: MIT
   <li><a href="#references"> References</a></li>
   <li><a href="#copyright"> Copyright</a></li>
 </ul>
-
-<h2 id="status"><a href="#status"></a> Status</h2>
-
-    <p>This SRFI is currently in <em>final</em> status.  Here is <a href="https://srfi.schemers.org/srfi-process.html">an explanation</a> of each status that a SRFI can hold.  To provide input on this SRFI, please send email to <code><a href="mailto:srfi+minus+278+at+srfi+dotschemers+dot+org">srfi-278@<span class="antispam">nospam</span>srfi.schemers.org</a></code>.  To subscribe to the list, follow <a href="https://srfi.schemers.org/srfi-list-subscribe.html">these instructions</a>.  You can access previous messages via the mailing list <a href="https://srfi-email.schemers.org/srfi-278/">archive</a>.</p>
-    <ul>
-      <li>Received: 2026-07-12</li>
-      <li>Draft #1 published: 2026-07-18</li>
-      <li>Draft #2 published: 2026-08-05</li>
-      <li>Draft #3 published: 2026-09-02</li>
-      <li>Draft #4 published: 2026-09-12</li>
-      <li>Draft #5 published: 2026-09-13</li>
-      <li>Draft #6 published: 2026-09-27</li>
-      <li>Finalized: 2026-10-17</li>
-    </ul>
-
-<h2 id="abstract"><a href="#abstract"></a> Abstract</h2>
-
-<p>
-  This SRFI defines procedures on Scheme numbers that aim to improve the
-  portability and usefulness of Scheme arithmetic. These procedures include
-  predicates with extended domains, hyperbolic and inverse hyperbolic
-  functions, the <span class="report-name">R<sup>6</sup>RS</span> numeric
-  tower, and additional procedures for rounding. Also included are
-  recommendations and justifications for mixed inexact/exact arithmetic
-  to make complex number arithmetic more predictable.
-</p>
 
 <h2 id="rationale"><a href="#rationale"></a> Rationale</h2>
 
