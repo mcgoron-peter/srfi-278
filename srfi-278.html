@@ -268,7 +268,7 @@ SPDX-License-Identifier: MIT
   potentially not on the real axis. This has consequences for functions
   that have branch cuts on the real axis, in particular, functions like
   <a href="#atanh"><code>atanh</code></a>, which has a branch cut when
-  the real part |<var>x</var>| ≥ 1. For example:
+  the real part <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mrow><mo>|</mo><mi>x</mi><mo>|</mo></mrow><mo>≥</mo><mn>1</mn></mrow></math>. For example:
 </p>
 
 <pre
@@ -647,8 +647,8 @@ Extensions to <span class="report-name">R<sup>7</sup>RS</span> procedures</h4>
   This procedure is like <code>rationalize</code> in the
   <span class="report-name">R<sup>7</sup>RS</span>. When
   <var>delta-lower</var> and <var>delta-upper</var> are specified,
-  then the simplest rational between <var>x</var>&minus;|<var>delta-lower</var>|
-  and <var>x</var>+|<var>delta-upper</var>| is returned.
+  then the simplest rational between <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>x</mi><mo>−</mo><mrow><mo>|</mo><mi>delta-lower</mi><mo>|</mo></mrow></mrow></math>
+  and <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>x</mi><mo>+</mo><mrow><mo>|</mo><mi>delta-upper</mi><mo>|</mo></mrow></mrow></math> is returned.
 </p>
 
 <p>
@@ -657,7 +657,7 @@ Extensions to <span class="report-name">R<sup>7</sup>RS</span> procedures</h4>
   When <var>upper-inclusive?</var> is true, the upper bound of the range
   is inclusive; otherwise, it is exclusive. For example,
   <code>(rationalize <var>x</var> -1 +1 #f #t)</code> covers the range
-  (<var>x</var>-1,<var>x</var>+1].
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>(</mo><mi>x</mi><mo>−</mo><mn>1</mn><mo>,</mo><mi>x</mi><mo>+</mo><mn>1</mn><mo>]</mo></mrow></math>.
 </p>
 <div class="boxed">
 <p>
@@ -669,14 +669,14 @@ Extensions to <span class="report-name">R<sup>7</sup>RS</span> procedures</h4>
   (that is not a power of two) by considering the numbers
   around it that would round to it. Let <var>ε</var> be the quantum of
   <var>f</var>. In the default round-to-even mode,
-  the interval of rationals that round to <var>f</var> is (<var>f</var>-<var>ε</var>/2,<var>f</var>+<var>ε</var>/2)
+  the interval of rationals that round to <var>f</var> is <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>(</mo><mi>f</mi><mo>−</mo><mfrac><mi>ε</mi><mn>2</mn></mfrac><mo>,</mo><mi>f</mi><mo>+</mo><mfrac><mi>ε</mi><mn>2</mn></mfrac><mo>)</mo></mrow></math>
   when the mantissa is odd, and
-  [<var>f</var>-<var>ε</var>/2,<var>f</var>+<var>ε</var>/2] when the
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>[</mo><mi>f</mi><mo>−</mo><mfrac><mi>ε</mi><mn>2</mn></mfrac><mo>,</mo><mi>f</mi><mo>+</mo><mfrac><mi>ε</mi><mn>2</mn></mfrac><mo>]</mo></mrow></math> when the
   mantissa is even. When <var>f</var> is a normal power of two, then the
-  range is [<var>f</var>-<var>ε</var>/4,<var>f</var>+<var>ε</var>/2],
+  range is <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>[</mo><mi>f</mi><mo>−</mo><mfrac><mi>ε</mi><mn>4</mn></mfrac><mo>,</mo><mi>f</mi><mo>+</mo><mfrac><mi>ε</mi><mn>2</mn></mfrac><mo>]</mo></mrow></math>,
   because the left interval is in a different binade.
   When <var>f</var> is a positive floating-point number in round towards
-  zero mode, then the interval is [<var>f</var>,<var>f</var>+<var>ε</var>).
+  zero mode, then the interval is <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mo>[</mo><mi>f</mi><mo>,</mo><mi>f</mi><mo>+</mo><mi>ε</mi><mo>)</mo></mrow></math>.
 </p>
 
 <p>A procedure called
@@ -709,8 +709,8 @@ Functions returning exact integers</h4>
 <p>
   Returns two nonnegative exact integers, <var>s</var> and <var>r</var>
   such that
-  <var>k</var>= <var>s</var><sup><var>n</var></sup> + <var>r</var>
-  and <var>k</var> &lt; (<var>s</var> + 1)<sup>n</sup>.
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>k</mi><mo>=</mo><msup><mi>s</mi><mi>n</mi></msup><mo>+</mo><mi>r</mi></mrow></math>
+  and <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>k</mi><mo>&lt;</mo><msup><mrow><mo>(</mo><mi>s</mi><mo>+</mo><mn>1</mn><mo>)</mo></mrow><mi>n</mi></msup></mrow></math>.
 </p>
 
 <pre
@@ -728,8 +728,8 @@ It is an error if <var>k</var> is not positive.</p>
 <p>
   Returns two nonnegative exact integers, <var>s</var> and <var>r</var>
   such that
-  <var>k</var>=<var>b</var><sup><var>s</var></sup> + <var>r</var>
-  and <var>k</var> &lt; <var>b</var><sup><var>s</var> + 1</sup>.
+  <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>k</mi><mo>=</mo><msup><mi>b</mi><mi>s</mi></msup><mo>+</mo><mi>r</mi></mrow></math>
+  and <math xmlns="http://www.w3.org/1998/Math/MathML" display="inline"><mrow><mi>k</mi><mo>&lt;</mo><msup><mi>b</mi><mrow><mi>s</mi><mo>+</mo><mn>1</mn></mrow></msup></mrow></math>.
 </p>
 
 <pre
