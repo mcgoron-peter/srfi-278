@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 .POSIX:
-VERSION=0.2.1
+VERSION=1.0.0
 
 chicken/${VERSION}-6.tar.gz:
 	mkdir -p chicken
